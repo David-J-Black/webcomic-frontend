@@ -1,0 +1,33 @@
+/* You can add global styles to this file, and also import other style files */
+
+body {
+  background-color: #ffffff;
+  padding: 0;
+  margin: 0;
+}
+
+h1, h2, h3, div {
+  color: #2A2121;
+  text-align: center;
+  width: 100%;
+}
+
+
+#chapter-header {
+
+  span {
+    text-align: center;
+    width: 100%;
+  }
+}
+
+#header {
+  width: 100%;
+}
+
+#comic-reader-body {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 20px;
+
+}
