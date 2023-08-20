@@ -1,45 +1,17 @@
-import {ChangeDetectorRef, Component, ElementRef, OnInit} from '@angular/core';
-import {Routes, RouterModule, ActivatedRoute} from "@angular/router";
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnInit,
+  QueryList,
+  Renderer2,
+  ViewChild,
+  ViewChildren
+} from '@angular/core';
+import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {PageService} from "../../service/page.service";
 import {WindowService} from "../../service/window.service";
-
-/**
- * I'm probs gonna throw this in the dumpster, but I'll keep the object here for now
- * Describes a range of pages that we would fetch from the backend
- */
-export class PageRange {
-  chapter: number
-  beginning: number
-  end: number
-
-  constructor(chapter: number,
-              beginning: number,
-              end: number) {
-    this.chapter = chapter;
-    this.beginning = beginning;
-    this.end = end;
-  }
-}
-
-export class Pagination {
-  itemsPerPage: number;
-  startingChapter: number
-  startingPage: number;
-
-  constructor(itemsPerPage: number,
-              startingChapter: number,
-              startingPage: number) {
-    this.itemsPerPage = itemsPerPage;
-    this.startingChapter = startingChapter;
-    this.startingPage = startingPage;
-  }
-}
-
-export class ComicPage {
-  pageNumber: number;
-  chapterNumber: number;
-  pageUrl: string;
-}
+import {ComicChapter, ComicPage} from "../../objects/ComicChapter";
 
 enum ReadStyle {
   singleChapter = 'singleChapter',
@@ -55,13 +27,31 @@ enum ReadStyle {
 })
 export class WebcomicPageComponent implements OnInit {
 
+  @ViewChild('currentPage', {static: false})
+  currentPage: ElementRef;
+  @ViewChildren('comicPage', { read: ElementRef})
+  comicPageElements: QueryList<ElementRef>
+
+  focusGained = false;
+
   chapterNumber: number;
-  range = new PageRange(1, 1,2);
-  pages: string[] = [];
   pageNumber: number;
+  pages: ComicPage[] = [];
+
+  // When pages are loaded, we want to put them in this array
+  loadedPages: Map<string, ComicPage> = new Map();
+
   readStyle: ReadStyle = ReadStyle.singleChapter;
   totalPages = 5;
-  chapter: any;
+  chapter: ComicChapter;
+
+  scrollLoadRatioFromBottom = 0.25;
+  scrollLoadRatioFromTop = 0.45;
+  scrollLock = true; // Should we load pages when scroll events are called?
+
+  // Ok, so doing logic based on every little scroll will slow our shit down, so let's save position and keep a min interval
+  private minScrollInterval: number = 50;
+  private lastRecordedYPosition: number = 0;
 
   private readStyleMap: {[key: string]: ReadStyle} = {
       singleChapter: ReadStyle.singleChapter,
@@ -70,30 +60,50 @@ export class WebcomicPageComponent implements OnInit {
       spreadInfinite: ReadStyle.spreadInfinite
   }
 
+  // I like to label all my private variables with the _ prefix
   constructor(
     private _route: ActivatedRoute,
+    private _router: Router,
     private _pageService: PageService,
     private _scrollPositionService: WindowService,
     private _elementRef: ElementRef,
-    private _changeDetectorRef: ChangeDetectorRef
+    private _changeDetectorRef: ChangeDetectorRef,
+    private _renderer: Renderer2
   ) {}
 
   ngOnInit(): void {
     // I hate nesting subscribe statements like this, please forgive me
-    this._route.paramMap.subscribe( params => {
-      this.chapterNumber = Number.parseInt(params.get('chapter'));
-      // this.range = this.parseURLRange(params.get('pageRange'));
-      this._pageService.getChapterInfo(this.chapterNumber).subscribe((result: any) => {
-        this.chapter = result;
-        this.pages = this._pageService.getPageURLs(this.chapterNumber, this.chapter.firstPage, this.chapter.lastPage);
-        console.log(this.pages);
-      });
+    this.parseRoute()
+    window.addEventListener('scroll', this.onScroll.bind(this));
+  }
+
+  /**
+   * We want to know the height and y axis position of each page,
+   * so we can tell which page the user is looking at.
+   */
+  loadPageHeightsAndPositions() {
+
+    this.comicPageElements.forEach((page) => {
+
+      const top = page.nativeElement.offsetTop;
+      const height = page.nativeElement.clientHeight;
+      const comicPage: ComicPage = this.getComicPageFromId(page.nativeElement.id);
+
+      comicPage.yPosition = top;
+      comicPage.height = height;
+
     });
 
+  }
 
 
-    const scrollY = this._scrollPositionService.getScrollPosition();
-    window.scrollTo(0, scrollY);
+  /** After we build the pages[] element, we want to get the
+   * user's focus onto the current page in the url*/
+  focusOnCurrentPage() {
+    if (!this.focusGained && this.currentPage !== undefined) {
+      this.currentPage.nativeElement.scrollIntoView();
+      this.focusGained = true;
+    }
   }
 
   /**
@@ -131,35 +141,249 @@ export class WebcomicPageComponent implements OnInit {
   }
 
   /**
-   * We need to know what the last part of the url is
-   * @param route the routeParams in string form
+   * Get the page and chapter information based on the route
    */
-  parseURLRange(route: string): PageRange  {
-    console.log(route);
+  parseRoute(): void  {
 
-    const parts: string[] = route.split("-");
+    try {
 
-    const part1: number = Number.parseInt(parts[0]);
-    const part2: number = Number.parseInt(parts[1]);
+      const paramMap: ParamMap = this._route.snapshot.paramMap;
 
-    return new PageRange(this.chapterNumber, part1, part2);
+      this.chapterNumber = Number.parseInt(paramMap.get('chapter'));
+      this.pageNumber = Number.parseInt(paramMap.get('page'));
+
+      // this.range = this.parseURLRange(params.get('pageRange'));
+      this._pageService.getChapterInfo(this.chapterNumber).subscribe((result: any) => {
+        this.chapter = result;
+        console.log('chapter info', this.chapter)
+        this.determinePagesToLoad();
+      });
+
+    } catch (e) {
+      console.error('Error trying to parse route!', e);
+    }
   }
 
   /**
-   * To be used when infinite scrolling gets implemented
+   * Loads the initial pages we start with
    */
-  loadPages(): void {
-    this.pages = [];
+  determinePagesToLoad(): void {
 
-    const firstPageOfSet = this.pageNumber - Math.floor(this.totalPages / 2);
-    const lastPageOfSet = this.pageNumber + Math.ceil(this.totalPages / 2);
+    // Do we know which page and chapter we want?
+    if (this.chapterNumber != null
+        && this.pageNumber != null) {
 
-    for(let i = firstPageOfSet; i <= lastPageOfSet; i++) {
+      // Is this page and chapter within range?
+      if (this.chapter != null
+        && this.pageNumber <= this.chapter.lastPage
+        && this.pageNumber >= this.chapter.firstPage) {
 
+        let pagesLeftToLoad = this.totalPages;
 
+        // Get the "current page"
+        const currentComicPages = this._pageService.getPages(this.chapterNumber, this.pageNumber, this.pageNumber);
+        const currentComicPage = currentComicPages[0];
+        this.pages.push(currentComicPage);
+        pagesLeftToLoad -= this.pages.length;
 
+        const afterPages: ComicPage[] = this._pageService.getPagesFollowingPage(currentComicPage, this.chapter, pagesLeftToLoad - 2);
+
+        pagesLeftToLoad -= afterPages.length;
+
+        const beforePages: ComicPage[] = this._pageService.getPagesPreceedingPage(currentComicPage, this.chapter, pagesLeftToLoad);
+
+        this.pages = beforePages.concat(this.pages);
+        this.pages = this.pages.concat(afterPages);
+
+      }
+    }
+  }
+
+  onScrollDown() {
+    console.log('onScrollDown')
+
+    // If all the pages aren't loaded or we have the scroll lock on, let us not try to get more pages
+    const pagesAreLoaded = this.areAllPagesLoaded();
+    if (!pagesAreLoaded || this.scrollLock) {
+      return;
+    }
+    const numberOfPagesToAdjust = 2;
+
+    const lastPage: ComicPage = this.pages[this.pages.length - 1];
+    const newPages: ComicPage[] = this._pageService.getPagesFollowingPage(lastPage, this.chapter, numberOfPagesToAdjust);
+    this.pages = this.pages.concat(newPages);
+    const removedPages: ComicPage[] = this.pages.splice(0, newPages.length);
+
+    // For each of our removed pages, we want to get rid of their entries in loadedPages
+    removedPages.forEach( (page: ComicPage) => {
+      this.loadedPages.delete(page.getPageId());
+    });
+
+  }
+
+  onScrollUp() {
+    console.log('ScrollUp:')
+
+    // If all the pages aren't loaded or we have the scroll lock on, let us not try to get more pages
+    const pagesAreLoaded = this.areAllPagesLoaded();
+    if (!pagesAreLoaded || this.scrollLock) {
+      return;
+    }
+    const numberOfPagesToAdjust = 2;
+
+    // Get new pages
+    const newPages: ComicPage[] = this._pageService.getPagesPreceedingPage(this.pages[0], this.chapter, numberOfPagesToAdjust);
+
+    if (newPages.length !== 0) {
+      // Add new pages to our pages
+      this.pages = newPages.concat(this.pages);
+      const removedPages: ComicPage[] = this.pages.splice(-newPages.length);
+
+      // For each of our removed pages, we want to get rid of their entries in loadedPages
+      removedPages.forEach( (page: ComicPage) => {
+        this.loadedPages.delete(page.getPageId());
+      });
+    }
+  }
+
+  recordCurrentScrollPosition() {
+    this.lastRecordedYPosition = window.scrollY + (window.innerHeight / 2);
+  }
+
+  onScroll() {
+    const windowHeight: number = window.innerHeight;
+
+    // We want to say the page in the center of the window is the current page
+    const scrollPosition: number = window.scrollY + (windowHeight / 2);
+
+    // Only run this function if a certain distance has been scrolled since the last time we've run this.
+    // This is to ensure this function isn't being spammed and slowing everything down.
+    if (scrollPosition >= this.lastRecordedYPosition - this.minScrollInterval &&
+        scrollPosition <= this.lastRecordedYPosition + this.minScrollInterval) {
+      return;
     }
 
+    // Are all of our pages loaded?
+    // We cannot accurately determine which page the user is looking at if pages aren't loaded
+    if (!this.areAllPagesLoaded()) {
+      return;
+    }
+
+    const scrollVelocity = scrollPosition - this.lastRecordedYPosition;
+
+    this.recordCurrentScrollPosition();
+    this.loadPageHeightsAndPositions();
+    this.pages.forEach((page, index) => {
+
+      if (scrollPosition >= page.yPosition &&
+          scrollPosition <= page.yPosition + page.height) {
+
+        /*
+          IF we are within this element's boundary, then let us consider this the page we are on, and get the ComicPage info
+         */
+        this._router
+          .navigateByUrl(`/read/${page.chapterNumber}/${page.pageNumber}`);
+        this.currentPage = this.getComicHTMLElement(page);
+        this.pageNumber = page.pageNumber;
+        this.chapterNumber = page.chapterNumber;
+      }
+    });
+
+    const pageHeight = Math.max(
+      document.documentElement.scrollHeight,
+      document.body.scrollHeight
+    );
+    const loadingPageRangeFromTop = pageHeight * this.scrollLoadRatioFromTop;
+    const loadingPageRangeFromBottom = pageHeight - (pageHeight * this.scrollLoadRatioFromBottom);
+
+    // Now, let's see if we should load new pages
+    if (scrollVelocity > 0 && scrollPosition > loadingPageRangeFromBottom ) {
+
+      // Oh motherfucker? We scrolling down?
+      this.onScrollDown()
+
+    } else if (scrollVelocity < 0 && scrollPosition < loadingPageRangeFromTop) {
+
+      // Oh frithermucker? WE scrolling up?
+      this.onScrollUp();
+    }
+
+  }
+
+  /**
+   * Gets the comic ComicPage object from an HTML element ID for that page.
+   */
+  getComicPageFromId(id: string): ComicPage {
+
+    const idSplit: string[] = id.split('_');
+    const chapter: number = Number.parseInt(idSplit[0]);
+    const pageNumber: number = Number.parseInt(idSplit[1]);
+    let response: ComicPage;
+
+    this.pages.forEach((page: ComicPage, index: number) => {
+
+      if (page.pageNumber == pageNumber && chapter == page.chapterNumber) {
+        response =  page;
+      }
+
+    });
+
+    return response;
+  }
+
+  /**
+   * Gets the comic html object from an HTML element ID for that page.
+   */
+  getComicHTMLElement(comicPage: ComicPage): ElementRef {
+
+    const currentPageId: string = comicPage.chapterNumber.toString() + '_' +comicPage.pageNumber.toString();
+
+    let currentPageRef: ElementRef;
+    this.comicPageElements.forEach( (pageElement: ElementRef) => {
+
+      const pageId = pageElement.nativeElement.id;
+      if (pageId === currentPageId) {
+        currentPageRef = pageElement;
+        return;
+      }
+    });
+
+    return currentPageRef;
+  }
+
+  /**
+   * Check to see if we have all the pages as loaded.
+   * - I predict the error state for a page will give me a headache
+   * - For now, we don't declare the entirity "loaded" unless all the pages are loaded
+   * - In the future, it might be a percentage
+   */
+  areAllPagesLoaded(): boolean {
+    // Count how many of the pages are loaded
+    return this.loadedPages.size === this.pages.length;
+  }
+
+  addPageToLoaded(page: ComicPage): void {
+    this.loadedPages.set(page.getPageId(), page);
+    if (this.areAllPagesLoaded()) {
+      const currentComicPage = this.getCurrentComicPage();
+      this.currentPage = this.getComicHTMLElement(currentComicPage);
+      this.focusOnCurrentPage();
+      this.scrollLock = false;
+    }
+  }
+
+  handlePageLoadError(page: ComicPage): void {
+    console.log("Page failed to load!", page);
+  }
+
+  getCurrentComicPage() {
+    for (const page of this.pages) {
+      if (page.pageNumber == this.pageNumber && page.chapterNumber === this.chapterNumber) {
+        return page;
+      }
+    }
+    console.error('No current page found!');
+    return null;
   }
 
 }

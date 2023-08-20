@@ -6,8 +6,17 @@ const routes: Routes = [
 
   {
     // path: "read/:chapter/:pageRange",
-    path: "read/:chapter",
+    path: "read/:chapter/:page",
     component: WebcomicPageComponent
+  },
+  {
+    path: '',
+    redirectTo: 'read/1/1',
+    pathMatch: "full"
+  },
+  {// If the path doesn't match anything else redirect to chapter 1
+    path: '**',
+    redirectTo: 'read/1/1'
   }
 
 ];

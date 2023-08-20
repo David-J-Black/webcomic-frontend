@@ -18,5 +18,8 @@ export class AppComponent {
     this.scrollPositionService.setScrollPosition(scrollY);
   }
 
+  printEvent(title: string, event: any) {
+    console.log(title, event);
+  }
 
 }

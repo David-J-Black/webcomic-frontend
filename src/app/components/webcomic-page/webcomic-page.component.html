@@ -2,17 +2,27 @@
 
   <div id="chapter-header">
     <h1>{{chapterNumber}}</h1>
-    <h1>{{chapter.title}}</h1>
-    <span>{{chapter.description}}</span>
+    <h1>{{chapter ? chapter.title : 'Loading...'}}</h1>
+    <span>{{chapter ? chapter.description : 'Loading...'}}</span>
   </div>
 
   <div id="pages-container">
 
-    <div class="comic-container">
+    <div class="comic-container"
+         infiniteScroll
+         [scrollWindow]="true"
+    >
 
       <div *ngFor="let page of pages">
 
-        <img [src]=page alt="comic page">
+        <div class="comic-page" [attr.id]="page.getPageId()" #comicPage>
+          <div #currentPage *ngIf="page.pageNumber === pageNumber && page.chapterNumber === chapterNumber">Current Page</div>
+          <span> page {{page.pageNumber}} {{page.yPosition}} </span>
+          <img  [src]="page.url"
+                alt="comic page"
+                (load)="addPageToLoaded(page)"
+                (error)="handlePageLoadError(page)">
+        </div>
 
       </div>
 
