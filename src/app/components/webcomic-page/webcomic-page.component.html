@@ -16,8 +16,9 @@
       <div *ngFor="let page of pages">
 
         <div class="comic-page" [attr.id]="page.getPageId()" #comicPage>
-          <div #currentPage *ngIf="page.pageNumber === pageNumber && page.chapterNumber === chapterNumber">Current Page</div>
-          <span> page {{page.pageNumber}} {{page.yPosition}} </span>
+          <!--  For debugging lol-->
+<!--          <div #currentPage *ngIf="page.pageNumber === pageNumber && page.chapterNumber === chapterNumber">Current Page</div>-->
+          <!--  <span> page {{page.pageNumber}} {{page.yPosition}} </span>-->
           <img  [src]="page.url"
                 alt="comic page"
                 (load)="addPageToLoaded(page)"

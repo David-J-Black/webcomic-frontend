@@ -29,7 +29,10 @@ export class PageService {
     return response;
   }
 
-  /** Get information for a range of pages */
+  /**
+   * Get information for a range of pages
+   * Todo: Make an endpoint on backend that gives a range of pages W chapter information
+   * */
   getPages(chapter: number, beginning: number, end: number) {
     const response: ComicPage[] = [];
 
@@ -48,8 +51,8 @@ export class PageService {
     return response;
   }
 
-  getChapterInfo(chapterNumber: number): Observable<any> {
-    return this._http.get(this.urls.getChapterInfo(chapterNumber))
+  getChapterInfo(chapterNumber: number): Observable<ComicChapter> {
+    return this._http.get<ComicChapter>(this.urls.getChapterInfo(chapterNumber))
   }
 
   /**
@@ -77,7 +80,9 @@ export class PageService {
 
     numberOfPagesLeft -= pagesLeftInChapter.length;
 
-    if (numberOfPagesLeft <= 0 || chapter.nextChapter === null || chapter.nextChapter.pageCount === 0) {
+    if (numberOfPagesLeft <= 0 ||
+        !chapter.nextChapter ||
+        chapter.nextChapter.pageCount === 0) {
       return pagesLeftInChapter;
     }
 
@@ -91,7 +96,6 @@ export class PageService {
    */
   getPagesPreceedingPage(page: ComicPage, chapter: ComicChapter, numberOfPages: number): ComicPage[] {
 
-    const response: ComicPage[] = [];
     let numberOfPagesLeft = numberOfPages;
 
     if (chapter.number !== page.chapterNumber) {
@@ -118,9 +122,9 @@ export class PageService {
       return pagesLeftInChapter;
     }
 
-    const pagesFromPreviousChapter: ComicPage[] = this.getPages(page.chapterNumber - 1, chapter.previousChapter.lastPage, chapter.previousChapter.lastPage - numberOfPagesLeft);
+    const pagesFromPreviousChapter: ComicPage[] = this.getPages(page.chapterNumber - 1, chapter.previousChapter.lastPage - numberOfPagesLeft, chapter.previousChapter.lastPage);
 
-    return pagesLeftInChapter.concat(pagesFromPreviousChapter);
+    return pagesFromPreviousChapter.concat(pagesLeftInChapter);
 
   }
 

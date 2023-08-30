@@ -1,19 +1,14 @@
 
-export enum PageState {
-  notLoaded = 0,
-  loaded = 1,
-  error = 2
-}
-
 /**
- * I'm probs gonna throw this in the dumpster, but I'll keep the object here for now
- * Describes a range of pages that we would fetch from the backend
+ * Object representing a page in the comic
  */
 export class ComicPage {
   pageNumber: number
   chapterNumber: number
   url: string
 
+  // The height of the page relative to the current state of the webpage
+  // this adjusts as the user scrolls and pages are added/ subtracted
   height: number;
   yPosition: number;
 

@@ -42,10 +42,11 @@ export class WebcomicPageComponent implements OnInit {
   loadedPages: Map<string, ComicPage> = new Map();
 
   readStyle: ReadStyle = ReadStyle.singleChapter;
-  totalPages = 5;
+  totalPages = 10;
+  pagesPerLoad: number = 2;
   chapter: ComicChapter;
 
-  scrollLoadRatioFromBottom = 0.25;
+  scrollLoadRatioFromBottom = 0.45;
   scrollLoadRatioFromTop = 0.45;
   scrollLock = true; // Should we load pages when scroll events are called?
 
@@ -100,7 +101,7 @@ export class WebcomicPageComponent implements OnInit {
   /** After we build the pages[] element, we want to get the
    * user's focus onto the current page in the url*/
   focusOnCurrentPage() {
-    if (!this.focusGained && this.currentPage !== undefined) {
+    if (!this.focusGained && this.currentPage !== undefined && this.currentPage) {
       this.currentPage.nativeElement.scrollIntoView();
       this.focusGained = true;
     }
@@ -153,7 +154,7 @@ export class WebcomicPageComponent implements OnInit {
       this.pageNumber = Number.parseInt(paramMap.get('page'));
 
       // this.range = this.parseURLRange(params.get('pageRange'));
-      this._pageService.getChapterInfo(this.chapterNumber).subscribe((result: any) => {
+      this._pageService.getChapterInfo(this.chapterNumber).subscribe((result: ComicChapter) => {
         this.chapter = result;
         console.log('chapter info', this.chapter)
         this.determinePagesToLoad();
@@ -207,10 +208,17 @@ export class WebcomicPageComponent implements OnInit {
     if (!pagesAreLoaded || this.scrollLock) {
       return;
     }
-    const numberOfPagesToAdjust = 2;
 
     const lastPage: ComicPage = this.pages[this.pages.length - 1];
-    const newPages: ComicPage[] = this._pageService.getPagesFollowingPage(lastPage, this.chapter, numberOfPagesToAdjust);
+
+    // We're going to get new pages
+    // First we need to make sure the chapter matches our chapterNumber
+    let newPages: ComicPage[]
+    if (lastPage.chapterNumber === this.chapter.number) {
+      newPages = this._pageService.getPagesFollowingPage(lastPage, this.chapter, this.pagesPerLoad);
+    } else if (lastPage.chapterNumber === this.chapter.nextChapter.number) {
+      newPages = this._pageService.getPagesFollowingPage(lastPage, this.chapter.nextChapter, this.pagesPerLoad);
+    }
     this.pages = this.pages.concat(newPages);
     const removedPages: ComicPage[] = this.pages.splice(0, newPages.length);
 
@@ -229,10 +237,16 @@ export class WebcomicPageComponent implements OnInit {
     if (!pagesAreLoaded || this.scrollLock) {
       return;
     }
-    const numberOfPagesToAdjust = 2;
 
     // Get new pages
-    const newPages: ComicPage[] = this._pageService.getPagesPreceedingPage(this.pages[0], this.chapter, numberOfPagesToAdjust);
+    // Let's check for the edgecase where the page we want to get is the previous chapter
+    let newPages: ComicPage[];
+
+    if (this.pages[0].chapterNumber === this.chapter.number) {
+      newPages = this._pageService.getPagesPreceedingPage(this.pages[0], this.chapter, this.pagesPerLoad);
+    } else if (this.pages[0].chapterNumber === this.chapter.previousChapter.number) {
+      newPages = this._pageService.getPagesPreceedingPage(this.pages[0], this.chapter.previousChapter, this.pagesPerLoad);
+    }
 
     if (newPages.length !== 0) {
       // Add new pages to our pages
@@ -284,8 +298,17 @@ export class WebcomicPageComponent implements OnInit {
         this._router
           .navigateByUrl(`/read/${page.chapterNumber}/${page.pageNumber}`);
         this.currentPage = this.getComicHTMLElement(page);
-        this.pageNumber = page.pageNumber;
-        this.chapterNumber = page.chapterNumber;
+
+        // If we are still loading pages, it's a little buggy if we change the page#
+        if (this.areAllPagesLoaded()) {
+          this.pageNumber = page.pageNumber;
+          if (page.chapterNumber !== this.chapterNumber) {
+            this.chapterNumber = page.chapterNumber;
+            this._pageService.getChapterInfo(this.chapterNumber).subscribe( (result: ComicChapter) => {
+              this.chapter = result;
+            });
+          }
+        }
       }
     });
 
@@ -336,7 +359,10 @@ export class WebcomicPageComponent implements OnInit {
    */
   getComicHTMLElement(comicPage: ComicPage): ElementRef {
 
-    const currentPageId: string = comicPage.chapterNumber.toString() + '_' +comicPage.pageNumber.toString();
+    if (comicPage == null) {
+      return null
+    }
+    const currentPageId: string = comicPage.chapterNumber.toString() + '_' + comicPage.pageNumber.toString();
 
     let currentPageRef: ElementRef;
     this.comicPageElements.forEach( (pageElement: ElementRef) => {
