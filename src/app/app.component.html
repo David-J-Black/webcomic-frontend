@@ -1,5 +1,22 @@
 <!--<h1>-->
 <!--  Finding Darwin-->
 <!--</h1>-->
-<img id="header" src="../assets/HeaderAlt.png"/>
-<router-outlet></router-outlet>
+<mat-drawer-container>
+
+  <mat-drawer #drawer
+              id="sideNav-drawer"
+              mode="push"
+              >
+
+
+  </mat-drawer>
+
+  <div id="main-content">
+    <div id="settings-button">
+      <mat-icon>menu</mat-icon>
+    </div>
+    <img id="header" src="./assets/HeaderAlt.png" alt="Finding Darwin"/>
+    <router-outlet></router-outlet>
+  </div>
+
+</mat-drawer-container>

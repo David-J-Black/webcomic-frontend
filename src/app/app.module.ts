@@ -10,12 +10,21 @@ import {HttpClientModule} from "@angular/common/http";
 import { SettingsMenuComponent } from './components/settings-menu/settings-menu.component';
 import {InfiniteScrollModule} from "ngx-infinite-scroll";
 import {RouterModule} from "@angular/router";
+import {
+  WebcomicInfiniteScrollComponent
+} from "./components/webcomic-infinite-scroll/webcomic-infinite-scroll.component";
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MatSidenavModule} from "@angular/material/sidenav";
+import {MatIconModule} from "@angular/material/icon";
+import {MatButtonModule} from "@angular/material/button";
 
 @NgModule({
   declarations: [
     AppComponent,
     WebcomicPageComponent,
     SettingsMenuComponent,
+    WebcomicPageComponent,
+    WebcomicInfiniteScrollComponent,
   ],
   imports: [
     BrowserModule,
@@ -23,7 +32,11 @@ import {RouterModule} from "@angular/router";
     AppRoutingModule,
     RouterModule,
     HttpClientModule,
-    InfiniteScrollModule
+    InfiniteScrollModule,
+    MatSidenavModule,
+    BrowserAnimationsModule,
+    MatIconModule,
+    MatButtonModule
   ],
   providers: [
     PageService

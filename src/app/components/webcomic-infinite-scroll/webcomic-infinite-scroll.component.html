@@ -1,0 +1,41 @@
+<div id="loading-overlay" *ngIf="stateInformation.loading">
+  <div class="loader"></div>
+</div>
+
+<div id="comic-reader-body">
+
+  <div id="pages-container">
+
+    <div class="comic-container">
+
+      <!--  When the user loads a page not from the beginning, they have to physically enable loading previous pages.-->
+      <div class="initial-header" *ngIf="headerLock && initialChapterNumber && initialPageNumber">
+        <div class="comic-button" (click)="unlockHeader()">Load Previous Pages</div>
+        <h2> Chapter {{initialChapterNumber}}, page {{initialPageNumber}}</h2>
+      </div>
+
+      <div *ngFor="let page of pages">
+
+        <!--  Chapter headers. We wont display a chapter's header if we got a header lock active-->
+        <div class="chapter-header" *ngIf="isStartOfChapter(page) && !(headerLock && page === pages[0])">
+          <h1>{{getPageChapter(page).number}}</h1>
+          <h1>{{getPageChapter(page).title}}</h1>
+        </div>
+        <div class="comic-page" [attr.id]="page.getPageId()" #comicPage>
+          <!--  For debugging lol-->
+<!--          <div #currentPage *ngIf="page.pageNumber === pageNumber && page.chapterNumber === chapterNumber">Current Page</div>-->
+          <!--  <span> page {{page.pageNumber}} {{page.yPosition}} </span>-->
+          <img  [src]="page.url"
+                alt="comic page"
+                (load)="markPageAsLoaded(page)"
+                (error)="handlePageLoadError(page)">
+          <span class="page-label">{{page.pageNumber}}</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
