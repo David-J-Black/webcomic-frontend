@@ -1,8 +1,8 @@
 
 /**
- * Object representing a page in the comic
+ * Object representing a page in the comic, for use in the InfiniteScroll Component
  */
-export class ComicPage {
+export class ComicPageSimple {
   pageNumber: number
   chapterNumber: number
   url: string
@@ -19,6 +19,19 @@ export class ComicPage {
     return this.chapterNumber + '_' + this.pageNumber
   }
 
+}
+
+/**
+ * Includes more detailed page on the page, such as page description, and release date
+ * TODO: Comment count
+ */
+export class ComicPageExtended {
+  pageNumber: number
+  chapterNumber: number
+  url: string
+  description: string
+  releaseDate: Date
+  chapter: ComicChapter
 }
 
 export class ComicChapter {

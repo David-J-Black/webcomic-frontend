@@ -1,0 +1,18 @@
+<div id="single-reader-body">
+
+  <div id="chapter-header">
+    <h1>Chapter {{chapterNumber}} - {{page ? page.chapter.title : 'Loading...'}}</h1>
+    <span>{{page ? page.chapter.description : 'Loading...'}}</span>
+    <span>{{page ? page.chapter.description : 'Loading...'}}</span>
+  </div>
+
+
+  <div id="pages-container">
+    <img *ngIf="page" [src]="page.url" alt="a page of the hit webcomic Finding Darwin, not coming to stores near you"/>
+  </div>
+  <span>
+    {{page.description}}
+  </span>
+  <br/>
+
+</div>

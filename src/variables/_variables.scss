@@ -1,0 +1,35 @@
+@import './_globals-spacing';
+
+// Phone Width
+$wid-phone-large: 800px;
+$wid-phone-small: 600px;
+
+// element widths
+$wid-hamburger-button: 40px;
+
+// drop-shadow
+$shdw-small: 2px 2px 6px rgba(0,0,0, 0.1);
+$shdw-large: 2px 2px 10px rgba(0,0,0, 1);
+
+// glow
+$glow-small: 0 0 30px rgba(255,255,255, 1);
+$glow-large: 2px 2px 10px rgba(255,255,255, 1);
+
+// border elements
+$brdr-radius-small: 2px;
+
+// element color
+$clr-button-primary: #e0e0e0;
+$clr-background: #484242;
+
+// Typography elements
+$typo-primary: #ffffff;
+$typo-secondary: #332b2b;
+$typo-tertiary: #f60202;
+
+$typo-size-sidebar: 14pt;
+$typo-size-sidebar-phone: 24pt;
+
+// Sidebar
+$sidebar-width: 200px;
+$sidebar-width-phone: 350px;

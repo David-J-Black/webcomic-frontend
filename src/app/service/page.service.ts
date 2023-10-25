@@ -2,7 +2,9 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {environment} from "../../environments/environment";
-import {ComicChapter, ComicPage} from "../objects/ComicChapter";
+import {ComicChapter, ComicPageExtended, ComicPageSimple} from "../objects/ComicChapter";
+import {Router} from "@angular/router";
+import {Location} from "@angular/common";
 
 @Injectable({
   providedIn: 'root'
@@ -11,22 +13,29 @@ export class PageService {
 
   env = environment;
   private urls = {
-    getPageURL: (chapterNumber: number, pageNumber: number): string => `${environment.apiUrl}/page/${chapterNumber}/${pageNumber}`,
-    getPageLegacy: (chapterNumber: number, pageNumber: number): string => `${environment.apiUrl}/page/${pageNumber}`,
-    getChapterInfo: (chapterNumber: number) => `${environment.apiUrl}/chapter/${chapterNumber}`
+    getPageImage: (chapterNumber: number, pageNumber: number): string => `${environment.apiUrl}/page/${chapterNumber}/${pageNumber}`,
+    getChapterInfo: (chapterNumber: number) => `${environment.apiUrl}/chapter/${chapterNumber}`,
+    getPageInfo: (chapterNumber: number, pageNumber: number): string => `${environment.apiUrl}/pageInfo/${chapterNumber}/${pageNumber}`,
+    getFirstPage:`${environment.apiUrl}/pages/first`,
+    getLastPage:`${environment.apiUrl}/pages/last`
   }
 
   constructor(
-    private _http: HttpClient
+    private _http: HttpClient,
+    private _router: Router,
+    private _location: Location
   ) { }
 
-  getPageURLs(chapterNumber, beginning, end): string[] {
-
-    const response: string[] = []
-    for(let i = beginning; i <= end; i++) {
-      response.push(this.urls.getPageURL(chapterNumber, i));
+  getPageInfo(pageNumber: number, chapterNumber: number): Observable<any> {
+    if (pageNumber === null || chapterNumber === null) {
+      console.warn(`Null page or chapter number given pageNumber:${pageNumber}, chapterNumber:${chapterNumber}]`)
+      return null;
     }
-    return response;
+    return this._http.get<any>(this.urls.getPageInfo(chapterNumber, pageNumber));
+  }
+
+  getPageURL(chapter: number, pageNumber: number): string {
+    return this.urls.getPageImage(chapter, pageNumber);
   }
 
   /**
@@ -34,16 +43,16 @@ export class PageService {
    * Todo: Make an endpoint on backend that gives a range of pages W chapter information
    * */
   getPages(chapter: number, beginning: number, end: number) {
-    const response: ComicPage[] = [];
+    const response: ComicPageSimple[] = [];
 
     /* For every page, we want to create a new page object with
      * with the correct information.
      * */
     for(let i = beginning; i <= end; i++) {
 
-      const page = new ComicPage();
+      const page = new ComicPageSimple();
       page.pageNumber = i;
-      page.url = this.urls.getPageURL(chapter, i);
+      page.url = this.urls.getPageImage(chapter, i);
       page.chapterNumber = chapter;
       response.push(page);
     }
@@ -58,7 +67,7 @@ export class PageService {
   /**
    * Fetch x number of pages that follow the given comicPage
    */
-  getPagesFollowingPage(page: ComicPage, chapter: ComicChapter, numberOfPages: number): ComicPage[] {
+  getPageAfter(page: ComicPageSimple, chapter: ComicChapter, numberOfPages: number): ComicPageSimple[] {
 
     let numberOfPagesLeft = numberOfPages;
 
@@ -74,7 +83,7 @@ export class PageService {
       chapter.lastPage - page.pageNumber;
 
     // Get the pages we want to get from this chapter
-    const pagesLeftInChapter: ComicPage[] = numberOfPagesFromThisChapter > 0 ?
+    const pagesLeftInChapter: ComicPageSimple[] = numberOfPagesFromThisChapter > 0 ?
       this.getPages(page.chapterNumber, page.pageNumber + 1, page.pageNumber + numberOfPagesFromThisChapter) :
       [];
 
@@ -86,7 +95,7 @@ export class PageService {
       return pagesLeftInChapter;
     }
 
-    const pagesFromNextChapter: ComicPage[] = this.getPages(page.chapterNumber + 1, chapter.nextChapter.firstPage, chapter.nextChapter.firstPage + numberOfPagesLeft);
+    const pagesFromNextChapter: ComicPageSimple[] = this.getPages(page.chapterNumber + 1, chapter.nextChapter.firstPage, chapter.nextChapter.firstPage + numberOfPagesLeft);
     return pagesLeftInChapter.concat(pagesFromNextChapter);
 
   }
@@ -94,7 +103,7 @@ export class PageService {
   /**
    * Fetch x number of pages that preceed the given comicPage
    */
-  getPagesPreceedingPage(page: ComicPage, chapter: ComicChapter, numberOfPages: number): ComicPage[] {
+  getPageBefore(page: ComicPageSimple, chapter: ComicChapter, numberOfPages: number): ComicPageSimple[] {
 
     let numberOfPagesLeft = numberOfPages;
 
@@ -112,7 +121,7 @@ export class PageService {
       page.pageNumber - chapter.firstPage;
 
     // Get the pages we want to get from this chapter
-    const pagesLeftInChapter: ComicPage[] = numberOfPagesFromThisChapter > 0 ?
+    const pagesLeftInChapter: ComicPageSimple[] = numberOfPagesFromThisChapter > 0 ?
       this.getPages(page.chapterNumber, page.pageNumber - numberOfPagesFromThisChapter, page.pageNumber - 1) :
       [];
 
@@ -122,10 +131,36 @@ export class PageService {
       return pagesLeftInChapter;
     }
 
-    const pagesFromPreviousChapter: ComicPage[] = this.getPages(page.chapterNumber - 1, chapter.previousChapter.lastPage - numberOfPagesLeft, chapter.previousChapter.lastPage);
+    const pagesFromPreviousChapter: ComicPageSimple[] = this.getPages(page.chapterNumber - 1, chapter.previousChapter.lastPage - numberOfPagesLeft, chapter.previousChapter.lastPage);
 
     return pagesFromPreviousChapter.concat(pagesLeftInChapter);
-
   }
 
+  /**
+   * Grab the first page from the API
+   */
+  getFirstPage(): Observable<ComicPageExtended> {
+    return this._http.get<ComicPageExtended>(this.urls.getFirstPage);
+  }
+
+  /**
+   * Grab the last page from the API
+   */
+  getLastPage(): Observable<ComicPageExtended> {
+    return this._http.get<ComicPageExtended>(this.urls.getLastPage);
+  }
+
+  async goToFirstPage(): Promise<void> {
+    this.getFirstPage().subscribe((page) => {
+      const url = `infinite-scroll/${page.chapter.number}/${page.pageNumber}`;
+      window.location.replace(url);
+    });
+  }
+
+  async goToLastPage(): Promise<void> {
+    this.getLastPage().subscribe((page) => {
+      const url = `infinite-scroll/${page.chapter.number}/${page.pageNumber}`;
+      window.location.replace(url);
+    });
+  }
 }

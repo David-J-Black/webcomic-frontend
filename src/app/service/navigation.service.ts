@@ -6,7 +6,7 @@ import {environment} from "../../environments/environment";
 @Injectable({
   providedIn: 'root'
 })
-export class WindowService {
+export class NavigationService {
 
   private scrollPosition = 0;
 

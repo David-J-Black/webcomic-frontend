@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import {WebcomicPageComponent} from "./components/webcomic-page/webcomic-page.component";
+import {SinglePageViewer} from "./components/single-page-viewer/single-page-viewer.component";
 import {WebcomicInfiniteScrollComponent} from "./components/webcomic-infinite-scroll/webcomic-infinite-scroll.component";
 
 const routes: Routes = [
@@ -13,7 +13,7 @@ const routes: Routes = [
   {
     // path: "read/:chapter/:pageRange",
     path: "page/:chapter/:page",
-    component: WebcomicPageComponent
+    component: SinglePageViewer
   },
   {
     path: '',

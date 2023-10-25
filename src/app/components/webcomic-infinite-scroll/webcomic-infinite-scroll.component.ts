@@ -10,8 +10,8 @@ import {
 } from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {PageService} from "../../service/page.service";
-import {WindowService} from "../../service/window.service";
-import {ComicChapter, ComicPage} from "../../objects/ComicChapter";
+import {NavigationService} from "../../service/navigation.service";
+import {ComicChapter, ComicPageSimple} from "../../objects/ComicChapter";
 
 enum ReadStyle {
   singleChapter = 'singleChapter',
@@ -26,7 +26,7 @@ enum ReadStyle {
 interface LoadState {
   loading: boolean,
   scrollingUp: boolean,
-  pageToScrollTo: ComicPage,
+  pageToScrollTo: ComicPageSimple,
   documentHeightPreLoad: number,
   scrollYPosPreLoad: number
 }
@@ -53,17 +53,16 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
 
   initialChapterNumber: number;
   initialPageNumber: number;
-  pages: ComicPage[] = [];
+  pages: ComicPageSimple[] = [];
 
   // When pages are loaded, we want to put them in this array
-  loadedPages: Map<string, ComicPage> = new Map();
-
+  loadedPages: Map<string, ComicPageSimple> = new Map();
   readStyle: ReadStyle = ReadStyle.singleChapter;
   initialPageCount = 10;
   pagesPerLoad: number = 10;
   chapter: ComicChapter;
 
-  initialPage: ComicPage;
+  initialPage: ComicPageSimple;
 
   /**
    *  When we load a page from a specified chapter/number, we will
@@ -71,8 +70,8 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
    */
   headerLock = false;
 
-  private scrollLoadRatioFromBottom = 0.25;
-  private scrollLoadRatioFromTop = 0.25;
+  private scrollLoadRatioFromBottom = 0.05;
+  private scrollLoadRatioFromTop = 0.05;
 
   private lastRecordedYPosition: number = 0;
 
@@ -88,7 +87,7 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
     private _route: ActivatedRoute,
     private _router: Router,
     private _pageService: PageService,
-    private _scrollPositionService: WindowService,
+    private _scrollPositionService: NavigationService,
     private _elementRef: ElementRef,
     private _changeDetectorRef: ChangeDetectorRef,
     private _renderer: Renderer2
@@ -114,7 +113,7 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
 
       const top = page.nativeElement.offsetTop;
       const height = page.nativeElement.clientHeight;
-      const comicPage: ComicPage = this.getComicPageFromId(page.nativeElement.id);
+      const comicPage: ComicPageSimple = this.getComicPageFromId(page.nativeElement.id);
 
       comicPage.yPosition = top;
       comicPage.height = height;
@@ -171,11 +170,11 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
 
   /**
    * Get the page and chapter information based on the route
+   * -- This should only done upon initialization
    */
   parseRoute(): void  {
 
     try {
-
       const paramMap: ParamMap = this._route.snapshot.paramMap;
 
       this.initialChapterNumber = Number.parseInt(paramMap.get('chapter'));
@@ -217,25 +216,23 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
         this.pages.push(currentComicPage);
         pagesLeftToLoad -= this.pages.length;
 
-        const afterPages: ComicPage[] = this._pageService.getPagesFollowingPage(currentComicPage, this.chapter, pagesLeftToLoad - 2);
+        const afterPages: ComicPageSimple[] = this._pageService.getPageAfter(currentComicPage, this.chapter, pagesLeftToLoad - 2);
 
         pagesLeftToLoad -= afterPages.length;
 
         // If we aren't header locked load the pages before the current one
         if (!this.headerLock) {
-          const beforePages: ComicPage[] = this._pageService.getPagesPreceedingPage(currentComicPage, this.chapter, pagesLeftToLoad);
+          const beforePages: ComicPageSimple[] = this._pageService.getPageBefore(currentComicPage, this.chapter, pagesLeftToLoad);
 
           // Create a bookmark before we load
           this.pages = beforePages.concat(this.pages);
         }
         this.pages = this.pages.concat(afterPages);
-
       }
     }
   }
 
   onScrollDown() {
-
     console.log('onScrollDown')
     // If all the pages aren't loaded or we have the scroll lock on, let us not try to get more pages
     const pagesAreLoaded = this.areAllPagesLoaded();
@@ -244,15 +241,15 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
       return;
     }
 
-    const lastPage: ComicPage = this.pages[this.pages.length - 1];
+    const lastPage: ComicPageSimple = this.pages[this.pages.length - 1];
 
     // We're going to get new pages
     // First we need to make sure the chapter matches our chapterNumber
-    let newPages: ComicPage[]
+    let newPages: ComicPageSimple[]
     if (lastPage.chapterNumber === this.chapter.number) {
-      newPages = this._pageService.getPagesFollowingPage(lastPage, this.chapter, this.pagesPerLoad);
+      newPages = this._pageService.getPageAfter(lastPage, this.chapter, this.pagesPerLoad);
     } else if (lastPage.chapterNumber === this.chapter.nextChapter.number) {
-      newPages = this._pageService.getPagesFollowingPage(lastPage, this.chapter.nextChapter, this.pagesPerLoad);
+      newPages = this._pageService.getPageAfter(lastPage, this.chapter.nextChapter, this.pagesPerLoad);
     }
 
     // Save all the information about our position before we add more pages
@@ -280,12 +277,12 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
   private loadPagesOnTop() {
     // Get new pages
     // Let's check for the edgecase where the page we want to get is the previous chapter
-    let newPages: ComicPage[];
+    let newPages: ComicPageSimple[];
 
     if (this.pages[0].chapterNumber === this.chapter.number) {
-      newPages = this._pageService.getPagesPreceedingPage(this.pages[0], this.chapter, this.pagesPerLoad);
+      newPages = this._pageService.getPageBefore(this.pages[0], this.chapter, this.pagesPerLoad);
     } else if (this.pages[0].chapterNumber === this.chapter.previousChapter.number) {
-      newPages = this._pageService.getPagesPreceedingPage(this.pages[0], this.chapter.previousChapter, this.pagesPerLoad);
+      newPages = this._pageService.getPageBefore(this.pages[0], this.chapter.previousChapter, this.pagesPerLoad);
     }
 
     if (newPages.length !== 0) {
@@ -306,7 +303,7 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
    *                      the bottom of the array
    */
   removePages(numberOfPages: number): number {
-      const removedPages: ComicPage[] = this.pages.splice(numberOfPages);
+      const removedPages: ComicPageSimple[] = this.pages.splice(numberOfPages);
       let pageHeightBeforeRemoval: number;
       // If we are removing pages from the top lets save the user's current scroll position
       if (numberOfPages > 0) {
@@ -316,7 +313,7 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
         );
       }
       // For each of our removed pages, we want to get rid of their entries in loadedPages
-      removedPages.forEach( (page: ComicPage) => {
+      removedPages.forEach( (page: ComicPageSimple) => {
         this.loadedPages.delete(page.getPageId());
       });
 
@@ -400,14 +397,14 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
   /**
    * Gets the comic ComicPage object from an HTML element ID for that page.
    */
-  getComicPageFromId(id: string): ComicPage {
+  getComicPageFromId(id: string): ComicPageSimple {
 
     const idSplit: string[] = id.split('_');
     const chapter: number = Number.parseInt(idSplit[0]);
     const pageNumber: number = Number.parseInt(idSplit[1]);
-    let response: ComicPage;
+    let response: ComicPageSimple;
 
-    this.pages.forEach((page: ComicPage) => {
+    this.pages.forEach((page: ComicPageSimple) => {
 
       if (page.pageNumber == pageNumber && chapter == page.chapterNumber) {
         response =  page;
@@ -421,7 +418,7 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
   /**
    * Gets the comic html object from an HTML element ID for that page.
    */
-  getComicHTMLElement(comicPage: ComicPage): ElementRef {
+  getComicHTMLElement(comicPage: ComicPageSimple): ElementRef {
 
     if (comicPage == null) {
       return null
@@ -480,7 +477,7 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
    * this motherfucker.
    * @param page Comic page that is to be marked as loaded.
    */
-  markPageAsLoaded(page: ComicPage): void {
+  markPageAsLoaded(page: ComicPageSimple): void {
     this.loadedPages.set(page.getPageId(), page);
     if (this.areAllPagesLoaded()) {
 
@@ -489,7 +486,7 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
     }
   }
 
-  handlePageLoadError(page: ComicPage): void {
+  handlePageLoadError(page: ComicPageSimple): void {
     console.log("Page failed to load!", page);
   }
 
@@ -518,7 +515,7 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
   /**
    * Determines if a page is the first in a chapter
    */
-  isStartOfChapter(page: ComicPage): boolean {
+  isStartOfChapter(page: ComicPageSimple): boolean {
     // Let's get this page's chapter
     let pageChapter: ComicChapter;
 
@@ -537,7 +534,7 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
     return page.pageNumber === pageChapter.firstPage
   }
 
-  getInitialChapterNumber(page: ComicPage): number {
+  getInitialChapterNumber(page: ComicPageSimple): number {
 
     // No page? Get the fuck outta here!
     if (!page) {
@@ -555,7 +552,7 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
    * Extracts a chapter from a page
    * @param page
    */
-  getPageChapter(page: ComicPage): ComicChapter {
+  getPageChapter(page: ComicPageSimple): ComicChapter {
 
     // If there's no page, then there's no chapter!
     if (!page) {
@@ -579,4 +576,5 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
     this.headerLock = false;
     this.loadPagesOnTop();
   }
+
 }

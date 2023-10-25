@@ -1,22 +1,71 @@
-<!--<h1>-->
-<!--  Finding Darwin-->
-<!--</h1>-->
-<mat-drawer-container>
+<div id="pseudo-body">
+  <div id="hamburger-button"
+       class="phone-only"
+       (click)="toggleMenu()">
+<!--    Hamburder button go here-->
+    <mat-icon>menu</mat-icon>
+  </div>
+  <header>
+    <img class="small-phone-only header"
+         id="phone-header"
+         src="./assets/header-phone.png"
+         alt="Finding Darwin"/>
+    <img class="not-small-phone header"
+         src="./assets/landscape_header.png"
+         alt="Finding Darwin"/>
+    <div id="below-header">
 
-  <mat-drawer #drawer
-              id="sideNav-drawer"
-              mode="push"
-              >
-
-
-  </mat-drawer>
-
-  <div id="main-content">
-    <div id="settings-button">
-      <mat-icon>menu</mat-icon>
     </div>
-    <img id="header" src="./assets/HeaderAlt.png" alt="Finding Darwin"/>
-    <router-outlet></router-outlet>
+  </header>
+
+  <div id="spacer"></div>
+
+  <div id="lower-content">
+    <div id="gray-out"
+         [ngClass]="{'hidden': !grayOutVisible()}" (click)="hideDrawer()">
+    </div>
+
+    <div id="main-content">
+      <router-outlet></router-outlet>
+    </div>
+
+    <div id="side-bar" [ngClass]="{'hidden': !drawerIsOpen(), 'fixed_right': !wideEnoughForSideMenu}">
+      <div class="drawer-item" (click)="goToFirstPage()">
+        <mat-icon>first_page</mat-icon>
+        <span>
+          Go to Beginning
+        </span>
+      </div>
+      <div class="drawer-item" (click)="goToLastPage()">
+        <mat-icon>last_page</mat-icon>
+        <span>
+          Go to End
+        </span>
+      </div>
+      <div class="drawer-item">
+        <mat-icon>info</mat-icon>
+        <span>
+          About
+        </span>
+      </div>
+      <div class="drawer-item">
+        <mat-icon>link</mat-icon>
+        <span>
+          Extras
+        </span>
+      </div>
+      <div class="drawer-item">
+        <mat-icon>receipt</mat-icon>
+        <span>
+          Traditional Reader
+        </span>
+      </div>
+    </div>
+
   </div>
 
-</mat-drawer-container>
+  <div id="footer">
+    2022-2023 David "PaddleBoat" Black
+  </div>
+
+</div>
