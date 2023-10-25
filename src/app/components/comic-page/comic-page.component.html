@@ -1,0 +1,10 @@
+<div class="comic-page">
+  <!--  For debugging lol-->
+  <!--          <div #currentPage *ngIf="page.pageNumber === pageNumber && page.chapterNumber === chapterNumber">Current Page</div>-->
+  <!--  <span> page {{page.pageNumber}} {{page.yPosition}} </span>-->
+  <img  [src]="webComicPage.url"
+        alt="comic page"
+        (load)="onLoad($event)"
+        (error)="onError($event)">
+  <span class="page-label">{{webComicPage.pageNumber}}</span>
+</div>

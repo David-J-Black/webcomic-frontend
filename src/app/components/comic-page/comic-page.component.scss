@@ -1,0 +1,28 @@
+@import "src/variables/variables";
+
+:host {
+  width: 100%;
+}
+
+.comic-page {
+  width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+
+  img {
+    width: 100%;
+    position: relative;
+    bottom: 0;
+    z-index: 2;
+  }
+
+  span.page-label {
+    position: absolute;
+    z-index: 3;
+    bottom: $sp-medium-8;
+    color: $typo-secondary;
+    -webkit-text-stroke: 1px white;
+  }
+}
