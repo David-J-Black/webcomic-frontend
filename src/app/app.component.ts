@@ -1,7 +1,6 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 import {NavigationService} from "./service/navigation.service";
 import {PageService} from "./service/page.service";
-import {ComicPageSimple} from "./objects/ComicChapter";
 
 @Component({
   selector: 'app-root',
@@ -26,12 +25,6 @@ export class AppComponent implements OnInit {
 
   toggleMenu() {
     this.isMenuOpenToggle = !this.isMenuOpenToggle;
-  }
-
-  @HostListener('window: scroll', [])
-  onWindowScroll(): void {
-    const scrollY = window.scrollY;
-    this._navigationService.setScrollPosition(scrollY);
   }
 
   @HostListener('window: resize', [])
@@ -79,5 +72,9 @@ export class AppComponent implements OnInit {
    */
   goToLastPage() {
     this._pageService.goToLastPage();
+  }
+
+  goToAboutPage() {
+    this._navigationService.goToAboutPage();
   }
 }

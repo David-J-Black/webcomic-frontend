@@ -9,22 +9,18 @@
   display: none !important;
 }
 
-body {
-  display: flex;
-  flex-flow: column nowrap;
-  font-family: 'PaddleBoatFont', sans-serif;
-  padding: 0;
-  margin: 0;
-  height: 100%;
-  width: 100%;
-  background-color: $clr-background;
-}
-
-h1, h2, h3, div {
-  color: #2A2121;
+h1, h2, h3, div, p, span {
+  color: $typo-primary;
   text-align: center;
   font-family: 'PaddleBoatFont', sans-serif;
   width: 100%;
+  margin-bottom: $sp-small-4;
+  text-shadow: $shdw-large;
+}
+
+h1, p {
+  margin-top: 0;
+  text-shadow: $shdw-large;
 }
 
 #initial-header {
@@ -70,8 +66,19 @@ h1, h2, h3, div {
   }
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html, body {
+  height: 100%;
+}
+
+body {
+  color: white;
+  display: flex;
+  flex-flow: column nowrap;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
 .desktop-only {
   @media screen and (max-width: $wid-phone-large) {

@@ -1,4 +1,4 @@
-@import "src/variables/_variables";
+@import "../../../variables/variables";
 
 .card {
   background: white;
@@ -31,7 +31,6 @@
 
     h2 {
       color: $typo-primary;
-      text-shadow: $shdw-large;
 
       @media screen and (min-width: $wid-phone-small + 1) {
         margin: 0;
@@ -99,6 +98,7 @@ img {
   color: $typo-secondary;
   background-color: $clr-button-primary;
   font-family: PaddleBoatFont, sans-serif;
+  text-shadow: none;
 
   &:hover {
     background-color: black;
