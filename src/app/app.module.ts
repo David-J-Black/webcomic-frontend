@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { SinglePageViewer } from './pages/single-page-viewer/single-page-viewer.component';
 import {PageService} from "./service/page.service";
 import {CommonModule, NgOptimizedImage} from "@angular/common";
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import { SettingsMenuComponent } from './components/settings-menu/settings-menu.component';
 import {RouterModule} from "@angular/router";
 import {
@@ -18,6 +18,7 @@ import {MatIconModule} from "@angular/material/icon";
 import { AboutPageComponent } from './pages/about-page/about-page.component';
 import { ExtrasPageComponent } from './pages/extras-page/extras-page.component';
 import { CommentComponent } from './components/comment/comment.component';
+import {DefaultApiInterceptor} from "./service/interrupter";
 
 @NgModule({
   declarations: [
@@ -42,7 +43,12 @@ import { CommentComponent } from './components/comment/comment.component';
       MatIconModule
     ],
   providers: [
-    PageService
+    PageService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: DefaultApiInterceptor,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })
