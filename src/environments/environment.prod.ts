@@ -2,6 +2,6 @@
 export const environment = {
 
   production: true,
-  apiUrl: 'http://findingdarwincomic.com:8080'
+  apiUrl: 'https://api.findingdarwincomic.com'
 
 }
