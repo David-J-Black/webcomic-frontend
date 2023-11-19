@@ -1,0 +1,16 @@
+<body>
+  <h1>
+    Table of Contents
+  </h1>
+  <div class="chapter" *ngFor="let chapter of comicChapters">
+    <h1>
+      {{comicChapters}}
+    </h1>
+    <pre>
+      {{jsonify(comicChapters)}}
+    </pre>
+  </div>
+  <pre>
+    {{jsonify(tableOfContents) || 'Not loaded'}}
+  </pre>
+</body>
