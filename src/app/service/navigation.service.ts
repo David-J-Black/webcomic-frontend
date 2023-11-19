@@ -13,4 +13,9 @@ export class NavigationService {
     window.location.replace(url);
   }
 
+  goToTableOfContents() {
+    const url = `table-of-contents`;
+    window.location.replace(url);
+  }
+
 }

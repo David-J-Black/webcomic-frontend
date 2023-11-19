@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import {SinglePageViewer} from "./pages/single-page-viewer/single-page-viewer.component";
 import {WebcomicInfiniteScrollComponent} from "./pages/webcomic-infinite-scroll/webcomic-infinite-scroll.component";
 import {AboutPageComponent} from "./pages/about-page/about-page.component";
+import {TableOfContentsComponent} from "./pages/table-of-contents/table-of-contents.component";
 
 const routes: Routes = [
 
@@ -19,6 +20,10 @@ const routes: Routes = [
   {
     path: 'about',
     component: AboutPageComponent
+  },
+  {
+    path: 'table-of-contents',
+    component: TableOfContentsComponent
   },
   {
     path: '',

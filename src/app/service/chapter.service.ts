@@ -9,15 +9,16 @@ import {Location} from "@angular/common";
 @Injectable({
   providedIn: 'root'
 })
-export class PageService {
+export class ChapterService {
 
   env = environment;
   private urls = {
     getPageImage: (chapterNumber: number, pageNumber: number): string => `${environment.apiUrl}/page/${chapterNumber}/${pageNumber}`,
-    getChapterInfo: (chapterNumber: number) => `${environment.apiUrl}/chapter/${chapterNumber}`,
     getPageInfo: (chapterNumber: number, pageNumber: number): string => `${environment.apiUrl}/pageInfo/${chapterNumber}/${pageNumber}`,
     getFirstPage:`${environment.apiUrl}/pages/first`,
-    getLastPage:`${environment.apiUrl}/pages/last`
+    getLastPage:`${environment.apiUrl}/pages/last`,
+    getChapterInfo: (chapterNumber: number) => `${environment.apiUrl}/chapter/${chapterNumber}`,
+    getAllChapters: `${environment.apiUrl}/chapter/all`
   }
 
   constructor(
@@ -148,6 +149,13 @@ export class PageService {
    */
   getLastPage(): Observable<ComicPageExtended> {
     return this._http.get<ComicPageExtended>(this.urls.getLastPage);
+  }
+
+  /**
+   * Retrieve all the data needed for the table of contents
+   */
+  getTableOfContents(): Observable<any> {
+    return this._http.get<any>(this.urls.getAllChapters);
   }
 
   async goToFirstPage(): Promise<void> {

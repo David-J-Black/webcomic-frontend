@@ -4,7 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SinglePageViewer } from './pages/single-page-viewer/single-page-viewer.component';
-import {PageService} from "./service/page.service";
+import {ChapterService} from "./service/chapter.service";
 import {CommonModule, NgOptimizedImage} from "@angular/common";
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import { SettingsMenuComponent } from './components/settings-menu/settings-menu.component';
@@ -19,6 +19,7 @@ import { AboutPageComponent } from './pages/about-page/about-page.component';
 import { ExtrasPageComponent } from './pages/extras-page/extras-page.component';
 import { CommentComponent } from './components/comment/comment.component';
 import {DefaultApiInterceptor} from "./service/interrupter";
+import { TableOfContentsComponent } from './pages/table-of-contents/table-of-contents.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import {DefaultApiInterceptor} from "./service/interrupter";
     AboutPageComponent,
     ExtrasPageComponent,
     CommentComponent,
+    TableOfContentsComponent,
   ],
     imports: [
       BrowserModule,
@@ -43,7 +45,7 @@ import {DefaultApiInterceptor} from "./service/interrupter";
       MatIconModule
     ],
   providers: [
-    PageService,
+    ChapterService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: DefaultApiInterceptor,

@@ -9,7 +9,7 @@ import {
   ViewChildren
 } from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
-import {PageService} from "../../service/page.service";
+import {ChapterService} from "../../service/chapter.service";
 import {NavigationService} from "../../service/navigation.service";
 import {ComicPageExtended, ComicPageSimple} from "../../objects/ComicChapter";
 
@@ -35,7 +35,7 @@ export class SinglePageViewer implements OnInit {
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
-    private _pageService: PageService,
+    private _pageService: ChapterService,
     private _scrollPositionService: NavigationService,
     private _elementRef: ElementRef,
     private _changeDetectorRef: ChangeDetectorRef,

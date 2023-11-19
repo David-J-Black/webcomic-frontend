@@ -1,6 +1,6 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 import {NavigationService} from "./service/navigation.service";
-import {PageService} from "./service/page.service";
+import {ChapterService} from "./service/chapter.service";
 
 @Component({
   selector: 'app-root',
@@ -10,7 +10,7 @@ import {PageService} from "./service/page.service";
 export class AppComponent implements OnInit {
 
   constructor(private _navigationService: NavigationService,
-              private _pageService: PageService) {}
+              private _pageService: ChapterService) {}
 
   // The minimum width the window has to be for us to keep the side-drawer out
   isMenuOpenToggle: boolean = false;
@@ -76,5 +76,9 @@ export class AppComponent implements OnInit {
 
   goToAboutPage() {
     this._navigationService.goToAboutPage();
+  }
+
+  goToTableOfContents() {
+    this._navigationService.goToTableOfContents();
   }
 }
