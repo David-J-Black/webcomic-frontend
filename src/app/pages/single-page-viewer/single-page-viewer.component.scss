@@ -19,3 +19,9 @@ img {
   display: block;
 }
 
+.controls {
+  display: flex;
+  flex-flow: row nowrap;
+  cursor: pointer;
+}
+

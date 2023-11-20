@@ -1,1 +1,13 @@
-<p>comment works!</p>
+<div class="comment" *ngFor="let comment of comments">
+    <span>
+        {{comment.body}}
+    </span>
+    <div class="comment-footer">
+        <span>
+            {{comment?.author || 'Anonymous Nerd'}}
+        </span>
+        <span>
+            {{comment.createDt}}
+        </span>
+    </div>
+</div>

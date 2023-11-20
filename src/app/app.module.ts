@@ -33,6 +33,7 @@ import { TableOfContentsComponent } from './pages/table-of-contents/table-of-con
     ExtrasPageComponent,
     CommentComponent,
     TableOfContentsComponent,
+    CommentComponent,
   ],
     imports: [
       BrowserModule,

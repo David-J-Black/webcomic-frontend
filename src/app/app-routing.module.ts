@@ -10,7 +10,7 @@ const routes: Routes = [
   {
     // path: "read/:chapter/:pageRange",
     path: "infinite-scroll/:chapter/:page",
-    component: WebcomicInfiniteScrollComponent
+    component: WebcomicInfiniteScrollComponent,
   },
   {
     // path: "read/:chapter/:pageRange",

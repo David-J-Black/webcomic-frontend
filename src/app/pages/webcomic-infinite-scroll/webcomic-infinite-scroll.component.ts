@@ -1,17 +1,16 @@
 import {
-  ChangeDetectorRef,
   Component,
   ElementRef,
-  OnInit,
+  OnInit, Output,
   QueryList,
-  Renderer2,
   ViewChild,
   ViewChildren
 } from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {ChapterService} from "../../service/chapter.service";
-import {NavigationService} from "../../service/navigation.service";
-import {ComicChapter, ComicPageSimple} from "../../objects/ComicChapter";
+import {ComicChapter} from "../../objects/ComicChapter";
+import {ComicPageSimple} from "../../objects/ComicPage";
+import {Observable} from "rxjs";
 
 enum ReadStyle {
   singleChapter = 'singleChapter',
@@ -42,6 +41,8 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
   currentPage: ElementRef;
   @ViewChildren('comicPage', { read: ElementRef})
   comicPageElements: QueryList<ElementRef>
+
+  @Output() currentPageOutput: Observable<ComicPageSimple>
 
   stateInformation: LoadState = {
     loading: false,
@@ -86,11 +87,7 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
-    private _pageService: ChapterService,
-    private _scrollPositionService: NavigationService,
-    private _elementRef: ElementRef,
-    private _changeDetectorRef: ChangeDetectorRef,
-    private _renderer: Renderer2
+    private _pageService: ChapterService
   ) {}
 
   ngOnInit(): void {

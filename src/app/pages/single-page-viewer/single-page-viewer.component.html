@@ -1,18 +1,33 @@
 <div id="single-reader-body">
 
   <div id="chapter-header">
-    <h1>Chapter {{chapterNumber}} - {{page ? page.chapter.title : 'Loading...'}}</h1>
-    <span>{{page ? page.chapter.description : 'Loading...'}}</span>
-    <span>{{page ? page.chapter.description : 'Loading...'}}</span>
+    <h1>Chapter {{comicPage.chapterNumber}} - {{comicPage ? comicPage.chapter.title : 'Loading...'}}</h1>
+    <span>{{comicPage ? comicPage.chapter.description : 'Loading...'}}</span>
+    <span>{{comicPage ? comicPage.chapter.description : 'Loading...'}}</span>
+  </div>
+  <div class="controls">
+    <div (click)="goToFirstPage()" >
+      <mat-icon></mat-icon>
+      <span>First</span>
+    </div>
+
+    <div (click)="goToPreviousPage()" *ngIf="!!previousPage">
+      <mat-icon></mat-icon>
+      <span>Previous</span>
+    </div>
+
+    <div (click)="goToNextPage()" *ngIf="!!nextPage">
+      <mat-icon></mat-icon>
+      <span>Next</span>
+    </div>
+
+    <div (click)="goToLastPage()">
+      <mat-icon></mat-icon>
+      <span>Last</span>
+    </div>
   </div>
 
+  <cmc-comic-page [comicPage]="comicPage"></cmc-comic-page>
 
-  <div id="pages-container">
-    <img *ngIf="page" [src]="page.url" alt="a page of the hit webcomic Finding Darwin, not coming to stores near you"/>
-  </div>
-  <span>
-    {{page.description}}
-  </span>
-  <br/>
-
+<!--  <cmc-comments [webComicPage]=""></cmc-comments>-->
 </div>

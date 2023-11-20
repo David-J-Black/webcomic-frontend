@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {ComicPageSimple} from "../../objects/ComicChapter";
+import {ComicPageExtended, ComicPageSimple} from "../../objects/ComicPage";
 
 @Component({
   selector: 'cmc-comic-page',
@@ -7,8 +7,9 @@ import {ComicPageSimple} from "../../objects/ComicChapter";
   styleUrls: ['./comic-page.component.scss']
 })
 export class ComicPageComponent {
-  @Input() webComicPage: ComicPageSimple
 
+  @Input() comicPage: ComicPageSimple | ComicPageExtended
+  @Input() internalComments: boolean = false;
   @Output() load: EventEmitter<Event> = new EventEmitter<Event>();
   @Output() error: EventEmitter<Event> = new EventEmitter<Event>();
 
@@ -19,4 +20,5 @@ export class ComicPageComponent {
   onError(event: Event) {
     this.error.emit(event);
   }
+
 }

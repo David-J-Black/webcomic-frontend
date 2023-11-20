@@ -28,7 +28,7 @@
         <cmc-comic-page [attr.id]="page.getPageId()"
                         class="comic-page"
                         #comicPage
-                        [webComicPage]="page"
+                        [comicPage]="page"
                         (load)="markPageAsLoaded(page)"
                         (error)="handlePageLoadError(page)"></cmc-comic-page>
       </div>

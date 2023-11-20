@@ -1,6 +1,5 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 import {NavigationService} from "./service/navigation.service";
-import {ChapterService} from "./service/chapter.service";
 
 @Component({
   selector: 'app-root',
@@ -9,8 +8,10 @@ import {ChapterService} from "./service/chapter.service";
 })
 export class AppComponent implements OnInit {
 
-  constructor(private _navigationService: NavigationService,
-              private _pageService: ChapterService) {}
+  constructor(
+      private _navigationService: NavigationService,
+  ) {}
+
 
   // The minimum width the window has to be for us to keep the side-drawer out
   isMenuOpenToggle: boolean = false;
@@ -64,14 +65,14 @@ export class AppComponent implements OnInit {
    * Navigates window to first page in comic
    */
   goToFirstPage() {
-    this._pageService.goToFirstPage();
+    this._navigationService.goToFirstPage();
   }
 
   /**
    * Navigates window to Lage page in comic
    */
   goToLastPage() {
-    this._pageService.goToLastPage();
+    this._navigationService.goToLastPage();
   }
 
   goToAboutPage() {
@@ -80,5 +81,28 @@ export class AppComponent implements OnInit {
 
   goToTableOfContents() {
     this._navigationService.goToTableOfContents();
+  }
+
+  goToSinglePage() {
+    console.debug('Test');
+
+    // TODO: Fix this, I would like to have this work
+    // const params = this._route.snapshot.params;
+    // console.log(params);
+    //
+    // // Access individual route parameters
+    // const routeChapterNumber = params['chapter'];
+    // const routePageNumber = params['page'];
+    //
+    // // Do something with the parameter values
+    // console.log(`chapter: ${routeChapterNumber}`);
+    // console.log(`page: ${routePageNumber}`);
+    //
+    // const chapterNumber = Number.parseInt(routeChapterNumber);
+    // const pageNumber = Number.parseInt(routePageNumber);
+
+
+
+    this._navigationService.goToSinglePage(1, 1);
   }
 }

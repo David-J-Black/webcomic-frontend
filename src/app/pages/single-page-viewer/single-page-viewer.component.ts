@@ -1,17 +1,13 @@
 import {
-  ChangeDetectorRef,
   Component,
-  ElementRef,
   OnInit,
-  QueryList,
-  Renderer2,
-  ViewChild,
-  ViewChildren
+
 } from '@angular/core';
-import {ActivatedRoute, ParamMap, Router} from "@angular/router";
+import {ActivatedRoute, ParamMap} from "@angular/router";
 import {ChapterService} from "../../service/chapter.service";
 import {NavigationService} from "../../service/navigation.service";
-import {ComicPageExtended, ComicPageSimple} from "../../objects/ComicChapter";
+import {ComicPageExtended, ComicPageSimple} from "../../objects/ComicPage";
+import {ComicChapter} from "../../objects/ComicChapter";
 
 @Component({
   selector: 'cmc-single-page-viewer',
@@ -19,27 +15,18 @@ import {ComicPageExtended, ComicPageSimple} from "../../objects/ComicChapter";
   styleUrls: ['./single-page-viewer.component.scss']
 })
 export class SinglePageViewer implements OnInit {
-
-  @ViewChild('currentPage', {static: false})
-  currentPage: ElementRef;
-  @ViewChildren('comicPage', { read: ElementRef})
-  comicPageElements: QueryList<ElementRef>
-
   focusGained = false;
 
-  chapterNumber: number;
-  pageNumber: number;
-  page: ComicPageExtended;
+  chapter: ComicChapter;
+  comicPage: ComicPageExtended;
+  previousPage: ComicPageSimple | undefined;
+  nextPage: ComicPageSimple | undefined;
 
   // I like to label all my private variables with the _ prefix
   constructor(
     private _route: ActivatedRoute,
-    private _router: Router,
     private _pageService: ChapterService,
-    private _scrollPositionService: NavigationService,
-    private _elementRef: ElementRef,
-    private _changeDetectorRef: ChangeDetectorRef,
-    private _renderer: Renderer2
+    private _navigationService: NavigationService
   ) {}
 
 
@@ -58,13 +45,27 @@ export class SinglePageViewer implements OnInit {
       const paramMap: ParamMap = this._route.snapshot.paramMap;
 
       // Initialize chapter and page numbers
-      this.chapterNumber = Number.parseInt(paramMap.get('chapter'));
-      this.pageNumber = Number.parseInt(paramMap.get('page'));
+      const chapterNumber = Number.parseInt(paramMap.get('chapter'));
+      const pageNumber = Number.parseInt(paramMap.get('page'));
 
-      this._pageService.getPageInfo(this.chapterNumber, this.pageNumber).subscribe((response: any) => {
-        this.page = response;
-        this.page.url = this._pageService.getPageURL(this.chapterNumber, this.pageNumber);
-        console.log(this.page);
+      this._pageService.getPageInfo(chapterNumber, pageNumber).subscribe((response: ComicPageExtended) => {
+        console.log('page got!', response)
+        this.comicPage = response;
+        this.comicPage.url = this._pageService.getPageURL(chapterNumber, pageNumber);
+        console.log(this.comicPage);
+        this._pageService.getChapterInfo(chapterNumber).subscribe((chapter: ComicChapter) => {
+          console.log('chapter', chapter);
+          this.chapter = chapter;
+          const beforePages = this._pageService.getPageBefore(this.comicPage, this.chapter, 1);
+          if (beforePages.length > 0) {
+            this.previousPage = beforePages.at(0);
+          }
+          const afterPages = this._pageService.getPageAfter(this.comicPage, this.chapter, 1);
+          if (afterPages.length > 0) {
+            this.nextPage = afterPages.at(0);
+          }
+        });
+
       });
 
     } catch (e) {
@@ -72,28 +73,26 @@ export class SinglePageViewer implements OnInit {
     }
   }
 
+  goToFirstPage(): void {
+    this._navigationService.goToFirstPage();
+  }
 
-  /**
-   * Gets the comic html object from an HTML element ID for that page.
-   */
-  getComicHTMLElement(comicPage: ComicPageSimple): ElementRef {
+  goToLastPage(): void {
+    this._navigationService.goToLastPage();
+  }
 
-    if (comicPage == null) {
-      return null
+  goToPreviousPage(): void {
+    if (this.comicPage != undefined){
+      this._navigationService.goToSinglePage(this.previousPage.chapterNumber, this.previousPage.pageNumber);
+      this.parseRoute();
     }
-    const currentPageId: string = comicPage.chapterNumber.toString() + '_' + comicPage.pageNumber.toString();
+  }
 
-    let currentPageRef: ElementRef;
-    this.comicPageElements.forEach( (pageElement: ElementRef) => {
-
-      const pageId = pageElement.nativeElement.id;
-      if (pageId === currentPageId) {
-        currentPageRef = pageElement;
-        return;
-      }
-    });
-
-    return currentPageRef;
+  goToNextPage(): void {
+    if (this.comicPage != undefined){
+      this._navigationService.goToSinglePage(this.nextPage.chapterNumber, this.nextPage.pageNumber);
+      this.parseRoute();
+    }
   }
 
   handlePageLoadError(page: ComicPageSimple): void {
