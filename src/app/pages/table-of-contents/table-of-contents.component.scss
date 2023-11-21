@@ -1,6 +1,86 @@
+@import 'src/variables/variables';
+
+:host {
+  height: fit-content;
+}
+
 pre {
   text-align: left;
   width: 100%;
   white-space: pre-wrap;
   tab-size: 2;
+}
+#chapters {
+
+  @media screen and (min-width: $wid-phone-large + 1) {
+    column-count: 2;
+  }
+}
+
+.chapter {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  .chapter-header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 10px;
+
+    h1 {
+      width: fit-content;
+      height: fit-content;
+      white-space: break-spaces;
+      text-align: left;
+    }
+    span {
+      width: fit-content;
+      white-space: nowrap;
+    }
+  }
+
+  .page-count {
+    padding-left: $sp-large-12;
+    white-space: nowrap;
+    width: fit-content;
+  }
+
+  .pages {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-left: $sp-large-12;
+
+    .page {
+      width: fit-content;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: baseline;
+      justify-content: flex-start;
+      gap: $sp-medium-5;
+
+      h3 {
+        width: fit-content;
+        white-space: nowrap;
+      }
+
+      span {
+        width: fit-content;
+        white-space: nowrap;
+      }
+    }
+  }
+}
+
+.clickable {
+  cursor: pointer;
+
+  &:hover {
+    background: white;
+    color: black;
+  }
 }

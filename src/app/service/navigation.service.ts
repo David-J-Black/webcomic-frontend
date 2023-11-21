@@ -25,8 +25,12 @@ export class NavigationService {
   }
 
   goToSinglePage(chapterNum: number, pageNum: number) {
-    console.log('epnis')
     this._router.navigate(['/page', chapterNum, pageNum])
+    console.log(this._router.url)
+  }
+
+  goToInfiniteScrollPage(chapterNum: number, pageNum: number) {
+    this._router.navigate(['/infinite-scroll', chapterNum, pageNum])
     console.log(this._router.url)
   }
 

@@ -1,16 +1,16 @@
 import {Component, OnInit} from '@angular/core';
-import {ComicChapter} from "../../objects/ComicChapter";
 import {ChapterService} from "../../service/chapter.service";
-import {Observable} from "rxjs";
+import {NavigationService} from "../../service/navigation.service";
 
-class TableOfContentsPage {
+export class TableOfContentsPage {
   description: string;
   pageNumber: number;
   releaseDate: Date;
 }
-class TableOfContentsChapter {
-
+export class TableOfContentsChapter {
+    title: string;
     chapterNumber: number;
+    description: string;
     pages: TableOfContentsPage[];
 
 }
@@ -22,15 +22,15 @@ class TableOfContentsChapter {
 })
 export class TableOfContentsComponent implements OnInit {
 
-  comicChapters: TableOfContentsChapter[] | undefined;
-  tableOfContents: Map<number, TableOfContentsChapter> | undefined;
+  tableOfContents: TableOfContentsChapter[] = [];
   constructor(
-      private _pageService: ChapterService
+      private _pageService: ChapterService,
+      private _navService: NavigationService
   ) {}
   ngOnInit() {
     this._pageService.getTableOfContents().subscribe(response => {
       this.tableOfContents = response;
-      console.info('tableOfContents', response)
+      console.debug('tableOfContents', response)
     });
   }
 
@@ -38,11 +38,8 @@ export class TableOfContentsComponent implements OnInit {
     return JSON.stringify(object, null, 2);
   }
 
-  getChapters(): TableOfContentsChapter[] {
-    const response: TableOfContentsChapter[] = [];
-    for( const chapter of this.comicChapters) {
-      chapter;
-    }
-    return  response;
+  goToPage(chapter: TableOfContentsChapter, page: TableOfContentsPage) {
+    console.debug('Click Event', chapter, page);
+    this._navService.goToInfiniteScrollPage(chapter.chapterNumber, page.pageNumber);
   }
 }

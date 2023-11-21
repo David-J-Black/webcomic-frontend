@@ -7,7 +7,7 @@
 #hamburger-button {
   top: 0;
   right: 0;
-  padding: $sp-small-4;
+  padding: $sp-card-padding;
   z-index: 5;
   position: fixed;
   box-sizing: border-box;
@@ -107,7 +107,7 @@
       width: $sidebar-width;
       height: fit-content;
       box-sizing: border-box;
-      padding: $sp-small-4;
+      padding: $sp-card-padding;
       z-index: 5;
       transition: margin-right 5s;
 
@@ -121,7 +121,7 @@
         display: flex;
         flex-flow: row nowrap;
         justify-content: space-between;
-        gap: $sp-small-4;
+        gap: $sp-card-padding;
         align-items: center;
         text-align: left;
         font-size: $typo-size-sidebar;

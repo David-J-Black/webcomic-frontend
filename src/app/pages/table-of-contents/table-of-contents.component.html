@@ -1,16 +1,29 @@
-<body>
-  <h1>
-    Table of Contents
-  </h1>
-  <div class="chapter" *ngFor="let chapter of comicChapters">
-    <h1>
-      {{comicChapters}}
-    </h1>
-    <pre>
-      {{jsonify(comicChapters)}}
-    </pre>
+
+<h1>
+  Table of Contents
+</h1>
+<div id="chapters">
+  <div class="chapter" *ngFor="let chapter of tableOfContents">
+    <div class="chapter-header">
+      <h1>
+        {{chapter.chapterNumber}}:
+      </h1>
+      <h1>
+        {{chapter.title}}
+      </h1>
+    </div>
+    <span class="page-count">
+      {{chapter.pages?.length}} pages
+    </span>
+    <div class="pages">
+      <div class="page clickable" *ngFor="let page of chapter.pages" (click)="goToPage(chapter, page)">
+        <h3>
+          {{page.pageNumber}}
+        </h3>
+        <span>
+          {{page.releaseDate}}
+        </span>
+      </div>
+    </div>
   </div>
-  <pre>
-    {{jsonify(tableOfContents) || 'Not loaded'}}
-  </pre>
-</body>
+</div>

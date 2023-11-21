@@ -6,6 +6,7 @@ import {ComicChapter} from "../objects/ComicChapter";
 import {ComicPageExtended, ComicPageSimple} from "../objects/ComicPage";
 import {Router} from "@angular/router";
 import {Location} from "@angular/common";
+import {TableOfContentsChapter} from "../pages/table-of-contents/table-of-contents.component";
 
 @Injectable({
   providedIn: 'root'
@@ -155,7 +156,7 @@ export class ChapterService {
   /**
    * Retrieve all the data needed for the table of contents
    */
-  getTableOfContents(): Observable<any> {
+  getTableOfContents(): Observable<TableOfContentsChapter[]> {
     return this._http.get<any>(this.urls.getAllChapters);
   }
 }

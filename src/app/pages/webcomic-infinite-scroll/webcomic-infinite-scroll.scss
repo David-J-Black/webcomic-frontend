@@ -23,7 +23,7 @@
     align-items: center;
     gap: $sp-medium-8;
     width: fit-content;
-    margin: $sp-small-4 0 0 0;
+    margin: $sp-card-padding 0 0 0;
 
     @media screen and (min-width: $wid-phone-small) {
       margin: 0;
