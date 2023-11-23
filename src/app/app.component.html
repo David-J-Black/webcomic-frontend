@@ -1,77 +1,56 @@
-<div id="pseudo-body">
-  <div id="hamburger-button"
-       class="phone-only"
-       (click)="toggleMenu()">
-<!--    Hamburder button go here-->
-    <mat-icon>menu</mat-icon>
-  </div>
-  <div id="background">
-    <div id="headers">
-      <img class="small-phone-only"
-           id="phone-header"
-           src="./assets/header-phone.png"
-           alt="Finding Darwin"/>
-      <img class="not-small-phone"
-           src="./assets/landscape_header.png"
-           alt="Finding Darwin"/>
-    </div>
-    <div id="below-header"></div>
-  </div>
 
-  <div id="spacer"></div>
-
-  <div id="lower-content">
-    <div id="gray-out"
-         [ngClass]="{'hidden': !grayOutVisible()}" (click)="hideDrawer()">
-    </div>
-
-    <div id="main-content">
-      <router-outlet></router-outlet>
-    </div>
-
-    <div id="side-bar" [ngClass]="{'hidden': !drawerIsOpen(), 'fixed_right': !wideEnoughForSideMenu}">
-      <div class="drawer-item" (click)="goToFirstPage()">
-        <mat-icon>first_page</mat-icon>
-        <span>
-          Go to Beginning
-        </span>
-      </div>
-      <div class="drawer-item" (click)="goToLastPage()">
-        <mat-icon>last_page</mat-icon>
-        <span>
-          Go to End
-        </span>
-      </div>
-      <div class="drawer-item" (click)="goToAboutPage()">
-        <mat-icon>info</mat-icon>
-        <span>
-          About
-        </span>
-      </div>
-      <div class="drawer-item">
-        <mat-icon>link</mat-icon>
-        <span>
-          Extras
-        </span>
-      </div>
-      <div class="drawer-item" (click)="goToTableOfContents()">
-        <mat-icon>book</mat-icon>
-        <span>
-          Table of Contents
-        </span>
-      </div>
-      <div class="drawer-item" (click)="goToSinglePage()">
-        <mat-icon>receipt</mat-icon>
-        <span>
-          Traditional Reader
-        </span>
-      </div>
-    </div>
-
-  </div>
-
+<div id="header">
 </div>
 
-<div id="footer">
-  2022-2023 David "PaddleBoat" Black
+<div id="lower-content">
+  <div id="gray-out"
+       [ngClass]="{'hidden': !grayOutVisible()}" (click)="hideDrawer()">
+  </div>
+
+  <div id="main-content">
+    <router-outlet></router-outlet>
+  </div>
+
+  <div id="side-bar" [ngClass]="{'hidden': !drawerIsOpen(), 'fixed_right': !wideEnoughForSideMenu}">
+    <div class="drawer-item" (click)="goToFirstPage()">
+      <mat-icon>first_page</mat-icon>
+      <span>
+        Go to Beginning
+      </span>
+    </div>
+    <div class="drawer-item" (click)="goToLastPage()">
+      <mat-icon>last_page</mat-icon>
+      <span>
+        Go to End
+      </span>
+    </div>
+    <div class="drawer-item" (click)="goToAboutPage()">
+      <mat-icon>info</mat-icon>
+      <span>
+        About
+      </span>
+    </div>
+<!--      <div class="drawer-item" (click)="goToExtrasPage()">-->
+<!--        <mat-icon>link</mat-icon>-->
+<!--        <span>-->
+<!--          Extras-->
+<!--        </span>-->
+<!--      </div>-->
+<!--      <div class="drawer-item" (click)="goToTableOfContents()">-->
+<!--        <mat-icon>book</mat-icon>-->
+<!--        <span>-->
+<!--          Table of Contents-->
+<!--        </span>-->
+<!--      </div>-->
+<!--      <div class="drawer-item" (click)="goToSinglePage()">-->
+<!--        <mat-icon>receipt</mat-icon>-->
+<!--        <span>-->
+<!--          Traditional Reader-->
+<!--        </span>-->
+<!--      </div>-->
+  </div>
+
+  <div id="footer">
+    2022-2023 David "PaddleBoat" Black
+  </div>
 </div>

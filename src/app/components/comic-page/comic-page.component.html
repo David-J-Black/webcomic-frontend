@@ -1,12 +1,9 @@
 <div class="comic-page">
-  <!--  For debugging lol-->
-  <!--          <div #currentPage *ngIf="page.pageNumber === pageNumber && page.chapterNumber === chapterNumber">Current Page</div>-->
-  <!--  <span> page {{page.pageNumber}} {{page.yPosition}} </span>-->
-  <img  [src]="comicPage.url"
+  <img  [src]="comicPage?.url"
         alt="comic page"
         (load)="onLoad($event)"
         (error)="onError($event)">
-  <span class="page-label">{{comicPage.pageNumber}}</span>
+  <span class="page-label">{{comicPage?.pageNumber}}</span>
 </div>
 
-<cmc-comment *ngIf="!internalComments" [comicPage]="comicPage"></cmc-comment>
+<cmc-comment *ngIf="!_displayComments" [comicPage]="comicPage"></cmc-comment>

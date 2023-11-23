@@ -1,8 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {jsonify} from 'src/app/utils'
 import {ComicPageExtended, ComicPageSimple} from "../../objects/ComicPage";
-import {CommentService, Pagination} from "../../service/comment.service";
+import {CommentService} from "../../service/comment.service";
 import {ComicComment} from "../../objects/ComicComment";
+import {Pagination} from "../../objects/Pagination";
 
 @Component({
   selector: 'cmc-comment',
@@ -15,7 +16,7 @@ export class CommentComponent implements OnInit{
   ) {
   }
 
-  @Input() comicPage: ComicPageSimple | ComicPageExtended
+  @Input() comicPage: ComicPageSimple | ComicPageExtended | undefined;
   comments: ComicComment[] = []
 
   jsonify(obj: any) {
@@ -28,10 +29,14 @@ export class CommentComponent implements OnInit{
       pageNumber: 0
     }
 
-    this._commentService.getPageComments(this.comicPage.chapterNumber, this.comicPage.pageNumber, pagination)
-        .subscribe( (response: ComicComment[]) => {
-          console.log('comments', response)
-          this.comments = response;
-        })
+    if (this.comicPage !== undefined) {
+      this._commentService.getPageComments(this.comicPage.chapterNumber, this.comicPage.pageNumber, pagination)
+          .subscribe( (response: ComicComment[]) => {
+            console.log('comments', response)
+            this.comments = response;
+          })
+    } else {
+      console.error('HEY! YOU SHOULD DEFINITELY GIVE THIS ELEMENT A comicPage OBJECT!');
+    }
   }
 }

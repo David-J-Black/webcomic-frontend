@@ -15,11 +15,13 @@ import {
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComicPageComponent } from './components/comic-page/comic-page.component';
 import {MatIconModule} from "@angular/material/icon";
-import { AboutPageComponent } from './pages/about-page/about-page.component';
-import { ExtrasPageComponent } from './pages/extras-page/extras-page.component';
+import { PageAboutComponent } from './pages/page-about/page-about.component';
+import { PageExtrasComponent } from './pages/page-extras/page-extras.component';
 import { CommentComponent } from './components/comment/comment.component';
 import {DefaultApiInterceptor} from "./service/interrupter";
 import { TableOfContentsComponent } from './pages/table-of-contents/table-of-contents.component';
+import { NavigationBarComponent } from './components/navigation-bar/navigation-bar.component';
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -29,21 +31,23 @@ import { TableOfContentsComponent } from './pages/table-of-contents/table-of-con
     SinglePageViewer,
     WebcomicInfiniteScrollComponent,
     ComicPageComponent,
-    AboutPageComponent,
-    ExtrasPageComponent,
+    PageAboutComponent,
+    PageExtrasComponent,
     CommentComponent,
     TableOfContentsComponent,
     CommentComponent,
+    NavigationBarComponent,
   ],
     imports: [
-      BrowserModule,
-      CommonModule,
-      AppRoutingModule,
-      RouterModule,
-      HttpClientModule,
-      BrowserAnimationsModule,
-      NgOptimizedImage,
-      MatIconModule
+        BrowserModule,
+        CommonModule,
+        AppRoutingModule,
+        RouterModule,
+        HttpClientModule,
+        BrowserAnimationsModule,
+        NgOptimizedImage,
+        MatIconModule,
+        FormsModule
     ],
   providers: [
     ChapterService,

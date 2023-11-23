@@ -2,8 +2,9 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {SinglePageViewer} from "./pages/single-page-viewer/single-page-viewer.component";
 import {WebcomicInfiniteScrollComponent} from "./pages/webcomic-infinite-scroll/webcomic-infinite-scroll.component";
-import {AboutPageComponent} from "./pages/about-page/about-page.component";
+import {PageAboutComponent} from "./pages/page-about/page-about.component";
 import {TableOfContentsComponent} from "./pages/table-of-contents/table-of-contents.component";
+import {PageExtrasComponent} from "./pages/page-extras/page-extras.component";
 
 const routes: Routes = [
 
@@ -19,7 +20,11 @@ const routes: Routes = [
   },
   {
     path: 'about',
-    component: AboutPageComponent
+    component: PageAboutComponent
+  },
+  {
+    path: 'extras',
+    component: PageExtrasComponent
   },
   {
     path: 'table-of-contents',

@@ -1,0 +1,25 @@
+@import 'src/variables/variables';
+
+:host {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 25px;
+
+  @media screen and (max-width: $wid-phone-large) {
+    gap: 5px;
+
+    .button {
+      span {
+        display: none;
+      }
+    }
+  }
+}
+
+#pagination-selector {
+  flex-flow: column nowrap;
+  font-size: smaller;
+  span {
+    white-space: nowrap;
+  }
+}

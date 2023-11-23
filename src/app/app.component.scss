@@ -1,30 +1,11 @@
 @import 'src/variables/variables';
 
-:host {
+:host {;
   height: 100%;
 }
 
-#hamburger-button {
-  top: 0;
-  right: 0;
-  padding: $sp-card-padding;
-  z-index: 5;
-  position: fixed;
-  box-sizing: border-box;
-  width: fit-content;
-
-  .mat-icon {
-    box-sizing: border-box;
-    font-size: $wid-hamburger-button;
-    width: $wid-hamburger-button;
-    height: $wid-hamburger-button;
-    text-shadow: $shdw-large;
-    color: white;
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
+#logo {
+  width: 300px;
 }
 
 #background {
@@ -41,16 +22,10 @@
   padding: 0;
   margin: 0;
 
-  #headers {
-    height: fit-content;
-    margin: 0;
+  img {
+    width: 100vw;
     padding: 0;
-
-    img {
-      width: 100vw;
-      padding: 0;
-      margin: 0;
-    }
+    margin: 0;
   }
 
   #below-header {
@@ -65,36 +40,28 @@
   }
 }
 
-#pseudo-body {
+:host {
   width: 100%;
-  height: 100vh;
+  height: fit-content;
   display: flex;
   flex-flow: column nowrap;
   gap: 0;
 
-  #spacer {
-    min-height: 150px;
-
-    @media screen and (max-width: $wid-phone-small) {
-      min-height: 250px;
-    }
-  }
-
   #lower-content {
     display: flex;
-    flex-flow: row nowrap;
+    flex-flow: column nowrap;
     justify-content: center;
-    height: 100vh;
+    align-items: center;
+    height: 100%;
+    background: linear-gradient(to bottom, #484242, black);
+    margin: 0;
 
     #main-content {
+      display: flex;
+      flex-flow: column nowrap;
       box-sizing: border-box;
-      margin: 0 $sidebar-width 0 0;
       max-width: $wid-phone-large;
       height: 100%;
-
-      @media screen and (max-width: $wid-phone-large) {
-        margin: 0;
-      }
     }
 
     #side-bar {
@@ -107,21 +74,15 @@
       width: $sidebar-width;
       height: fit-content;
       box-sizing: border-box;
-      padding: $sp-card-padding;
+      padding: $sp-small-4;
       z-index: 5;
       transition: margin-right 5s;
-
-      @media screen and (max-width: $wid-phone-large) {
-        top: $sp-large-12;
-        left: 0;
-        width: $sidebar-width-phone;
-      }
 
       .drawer-item {
         display: flex;
         flex-flow: row nowrap;
         justify-content: space-between;
-        gap: $sp-card-padding;
+        gap: $sp-small-4;
         align-items: center;
         text-align: left;
         font-size: $typo-size-sidebar;
@@ -197,6 +158,15 @@
 
 }
 
-#phone-header {
+#header {
+  display: block;
   width: 100%;
+  height: 200px;
+  background-image: url('/assets/landscapeHeader.png');
+  background-repeat: repeat-x;
+  background-size: auto 200px;
+  background-position-x: center;
+  background-color: #b5d0e3;
+  padding: 0;
+  margin: 0;
 }

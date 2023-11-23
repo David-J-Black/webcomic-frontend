@@ -5,16 +5,25 @@
 //  src: url('./assets/Paddleboathand_2-Regular.ttf'); /* Format and path to the font file */
 //}
 
+html {
+  background: black;
+  width: 100vw;
+  overflow-x: hidden;
+}
 .hidden {
   display: none !important;
 }
 
-h1, h2, h3, div, p, span {
+p {
+  text-align: left;
+}
+
+h1, h2, h3, div, span {
   color: $typo-primary;
   text-align: center;
   font-family: 'PaddleBoatFont', sans-serif;
   width: 100%;
-  margin-bottom: $sp-card-padding;
+  margin-bottom: $sp-small-4;
   text-shadow: $shdw-large;
 }
 
@@ -101,5 +110,18 @@ body {
 .not-small-phone {
   @media screen and (max-width: $wid-phone-small) {
     display: none !important;
+  }
+}
+
+.icon-button {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  span {
+    margin: 0;
+    width: fit-content;
   }
 }

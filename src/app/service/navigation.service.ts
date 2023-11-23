@@ -19,6 +19,11 @@ export class NavigationService {
     this._router.navigate([url])
   }
 
+  goToExtrasPage() {
+    const url = `/extras`;
+    this._router.navigate([url])
+  }
+
   goToTableOfContents() {
     const url = `table-of-contents`;
     this._router.navigate([url])

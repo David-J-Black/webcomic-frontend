@@ -17,8 +17,8 @@ import {ComicChapter} from "../../objects/ComicChapter";
 export class SinglePageViewer implements OnInit {
   focusGained = false;
 
-  chapter: ComicChapter;
-  comicPage: ComicPageExtended;
+  chapter: ComicChapter | undefined;
+  comicPage: ComicPageExtended | undefined;
   previousPage: ComicPageSimple | undefined;
   nextPage: ComicPageSimple | undefined;
 
@@ -45,8 +45,8 @@ export class SinglePageViewer implements OnInit {
       const paramMap: ParamMap = this._route.snapshot.paramMap;
 
       // Initialize chapter and page numbers
-      const chapterNumber = Number.parseInt(paramMap.get('chapter'));
-      const pageNumber = Number.parseInt(paramMap.get('page'));
+      const chapterNumber = Number.parseInt(paramMap.get('chapter') || '-1');
+      const pageNumber = Number.parseInt(paramMap.get('page') || '-1');
 
       this._pageService.getPageInfo(chapterNumber, pageNumber).subscribe((response: ComicPageExtended) => {
         console.log('page got!', response)
@@ -56,6 +56,10 @@ export class SinglePageViewer implements OnInit {
         this._pageService.getChapterInfo(chapterNumber).subscribe((chapter: ComicChapter) => {
           console.log('chapter', chapter);
           this.chapter = chapter;
+
+          if (this.comicPage === undefined) {
+            throw new Error("No comic page from route!")
+          }
           const beforePages = this._pageService.getPageBefore(this.comicPage, this.chapter, 1);
           if (beforePages.length > 0) {
             this.previousPage = beforePages.at(0);
@@ -82,14 +86,14 @@ export class SinglePageViewer implements OnInit {
   }
 
   goToPreviousPage(): void {
-    if (this.comicPage != undefined){
+    if (this.previousPage != undefined){
       this._navigationService.goToSinglePage(this.previousPage.chapterNumber, this.previousPage.pageNumber);
       this.parseRoute();
     }
   }
 
   goToNextPage(): void {
-    if (this.comicPage != undefined){
+    if (this.nextPage != undefined){
       this._navigationService.goToSinglePage(this.nextPage.chapterNumber, this.nextPage.pageNumber);
       this.parseRoute();
     }

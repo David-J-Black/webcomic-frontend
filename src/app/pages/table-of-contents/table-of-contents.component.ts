@@ -1,19 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {ChapterService} from "../../service/chapter.service";
 import {NavigationService} from "../../service/navigation.service";
+import {TableOfContentsChapter} from "../../objects/TableOfContentsChapter";
+import {TableOfContentsPage} from "../../objects/TableOfContentsPage";
 
-export class TableOfContentsPage {
-  description: string;
-  pageNumber: number;
-  releaseDate: Date;
-}
-export class TableOfContentsChapter {
-    title: string;
-    chapterNumber: number;
-    description: string;
-    pages: TableOfContentsPage[];
-
-}
 
 @Component({
   selector: 'app-table-of-contents',
@@ -34,9 +24,6 @@ export class TableOfContentsComponent implements OnInit {
     });
   }
 
-  jsonify(object: any): string {
-    return JSON.stringify(object, null, 2);
-  }
 
   goToPage(chapter: TableOfContentsChapter, page: TableOfContentsPage) {
     console.debug('Click Event', chapter, page);

@@ -2,12 +2,8 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {environment} from "../../environments/environment";
+import {Pagination} from "../objects/Pagination";
 
-export class Pagination {
-  pageSize: number;
-  pageNumber: number;
-  total?: number;
-}
 
 @Injectable({
   providedIn: 'root'

@@ -1,6 +1,6 @@
 
 
-export class ComicChapter {
+export type ComicChapter = {
   description: string
   firstPage: number
   lastPage: number

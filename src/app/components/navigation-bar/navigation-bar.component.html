@@ -1,0 +1,28 @@
+<div class="button icon-button">
+    <mat-icon>fast_rewind</mat-icon>
+    <span>First</span>
+</div>
+
+<div class="button icon-button">
+    <mat-icon>arrow_left</mat-icon>
+    <span>Previous</span>
+</div>
+
+<div class="icon-button" id="pagination-selector">
+    <span>Pages at a Time</span>
+    <select [(ngModel)]=selectedNumber name="number" (change)="emitSelection()">
+        <option *ngFor="let option of pageOptions" [value]="option">
+            {{option}}
+        </option>
+    </select>
+</div>
+
+<div class="button icon-button">
+    <span>Next</span>
+    <mat-icon>arrow_right</mat-icon>
+</div>
+
+<div class="button icon-button">
+    <span>Last</span>
+    <mat-icon>fast_forward</mat-icon>
+</div>

@@ -17,7 +17,7 @@ export class AppComponent implements OnInit {
   isMenuOpenToggle: boolean = false;
   wideEnoughForSideMenu: boolean = false;
   private menuOutWidth: number = 800;
-  private windowWidth: number;
+  private windowWidth: number | undefined;
 
   ngOnInit() {
     // Initialize the window width
@@ -77,6 +77,10 @@ export class AppComponent implements OnInit {
 
   goToAboutPage() {
     this._navigationService.goToAboutPage();
+  }
+
+  goToExtrasPage() {
+    this._navigationService.goToExtrasPage();
   }
 
   goToTableOfContents() {

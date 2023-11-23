@@ -6,7 +6,7 @@ import {ComicChapter} from "../objects/ComicChapter";
 import {ComicPageExtended, ComicPageSimple} from "../objects/ComicPage";
 import {Router} from "@angular/router";
 import {Location} from "@angular/common";
-import {TableOfContentsChapter} from "../pages/table-of-contents/table-of-contents.component";
+import {TableOfContentsChapter} from "../objects/TableOfContentsChapter";
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +32,7 @@ export class ChapterService {
   getPageInfo(chapterNumber: number, pageNumber: number): Observable<any> {
     if (pageNumber === null || chapterNumber === null) {
       console.warn(`Null page or chapter number given pageNumber:${pageNumber}, chapterNumber:${chapterNumber}]`)
-      return null;
+      return new Observable<any>();
     }
     return this._http.get<any>(this.urls.getPageInfo(chapterNumber, pageNumber));
   }
@@ -48,15 +48,18 @@ export class ChapterService {
   getPages(chapter: number, beginning: number, end: number) {
     const response: ComicPageSimple[] = [];
 
-    /* For every page, we want to create a new page object with
-     * with the correct information.
-     * */
+    /*
+     * For every page, we want to create a new page object with the correct information.
+     */
     for(let i = beginning; i <= end; i++) {
 
-      const page = new ComicPageSimple();
-      page.pageNumber = i;
-      page.url = this.urls.getPageImage(chapter, i);
-      page.chapterNumber = chapter;
+      const page: ComicPageSimple = {
+        pageNumber: i,
+        url: this.urls.getPageImage(chapter, i),
+        chapterNumber: chapter,
+        height: undefined,
+        yPosition: undefined
+      };
       response.push(page);
     }
 

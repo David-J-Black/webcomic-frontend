@@ -1,40 +1,25 @@
 <div id="loading-overlay" *ngIf="stateInformation.loading">
   <div class="loader"></div>
 </div>
+<div class="comic-container">
 
-<div class="single-reader-body">
-
-  <div id="pages-container">
-
-    <div class="comic-container">
-
-      <!--  When the user loads a page not from the beginning, they have to physically enable loading previous pages.-->
-      <div class="initial-header"
-           *ngIf="headerLock && initialChapterNumber && initialPageNumber">
-        <h2> Chapter {{initialChapterNumber}}, page {{initialPageNumber}}</h2>
-        <div class="comic-button"
-             (click)="unlockHeader()">
-          Load Previous Pages
-        </div>
-      </div>
-
-      <div *ngFor="let page of pages"
-           class="page-slot">
-
-        <!--  Chapter headers. We wont display a chapter's header if we got a header lock active-->
-        <div class="chapter-header" *ngIf="isStartOfChapter(page) && !(headerLock && page === pages[0])">
-          <h1>Chapter {{getPageChapter(page).number}}: {{getPageChapter(page).title}}</h1>
-        </div>
-        <cmc-comic-page [attr.id]="page.getPageId()"
-                        class="comic-page"
-                        #comicPage
-                        [comicPage]="page"
-                        (load)="markPageAsLoaded(page)"
-                        (error)="handlePageLoadError(page)"></cmc-comic-page>
-      </div>
-
-    </div>
-
+  <!--  When the user loads a page not from the beginning, they have to physically enable loading previous pages.-->
+  <div class="initial-header">
+    <h2> Chapter {{firstChapterNumber || 'Loading'}}, page {{firstPageNumber || 'Loading'}}</h2>
+<!--        <div class="comic-button"-->
+<!--             (click)="unlockHeader()">-->
+<!--          Load Previous Pages-->
+<!--        </div>-->
   </div>
-
+  <cmc-navigation-bar/>
+  <div *ngFor="let page of pages"
+       class="page-slot">
+    <cmc-comic-page [attr.id]="getPageId(page)"
+                    class="comic-page"
+                    #comicPage
+                    [comicPage]="page"
+                    (load)="markPageAsLoaded(page)"
+                    (error)="handlePageLoadError(page)"></cmc-comic-page>
+  </div>
+  <cmc-navigation-bar/>
 </div>
