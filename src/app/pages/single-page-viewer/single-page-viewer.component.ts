@@ -57,17 +57,6 @@ export class SinglePageViewer implements OnInit {
           console.log('chapter', chapter);
           this.chapter = chapter;
 
-          if (this.comicPage === undefined) {
-            throw new Error("No comic page from route!")
-          }
-          const beforePages = this._pageService.getPageBefore(this.comicPage, this.chapter, 1);
-          if (beforePages.length > 0) {
-            this.previousPage = beforePages.at(0);
-          }
-          const afterPages = this._pageService.getPageAfter(this.comicPage, this.chapter, 1);
-          if (afterPages.length > 0) {
-            this.nextPage = afterPages.at(0);
-          }
         });
 
       });

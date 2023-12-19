@@ -3,6 +3,7 @@
 :host {
   display: flex;
   flex-flow: row nowrap;
+  justify-content: flex-end;
   gap: 25px;
 
   @media screen and (max-width: $wid-phone-large) {
@@ -16,10 +17,52 @@
   }
 }
 
-#pagination-selector {
+#page-selector {
   flex-flow: column nowrap;
-  font-size: smaller;
+
   span {
+    font-weight: bold;
     white-space: nowrap;
   }
+
+  select {
+    font-size: 16pt;
+    padding: 5px;
+    font-weight: bolder;
+    border-radius: $rad-small;
+  }
 }
+
+.row-item {
+  // Curved buttons Idea
+  //$rotate-degree: 15deg;
+  //$increase-scalar: 5deg;
+  //
+  //&.first{
+  //  //rotate: $rotate-degree;
+  //}
+  //
+  //&.previous {
+  //  rotate: calc(2 *$rotate-degree);
+  //}
+  cursor: pointer;
+  overflow: visible;
+
+  :hover {
+    //color: $clr-hover;
+    text-shadow: $glow-small;
+  }
+
+  span {
+    color: white;
+  }
+
+  mat-icon {
+    font-size: 60pt;
+    width: fit-content;
+    height: fit-content;
+    margin: 0;
+    overflow: visible;
+  }
+}
+

@@ -13,14 +13,16 @@ $shdw-large: 2px 2px 10px rgba(0,0,0, 1);
 
 // glow
 $glow-small: 0 0 30px rgba(255,255,255, 1);
-$glow-large: 2px 2px 10px rgba(255,255,255, 1);
+$glow-large: 2px 2px 20px rgba(255,255,255, 1);
 
 // border elements
-$brdr-radius-small: 2px;
+$rad-small: 5px;
+$rad-hover: 40px;
 
 // element color
 $clr-button-primary: #e0e0e0;
 $clr-background: #484242;
+$clr-hover: #000000;
 
 // Typography elements
 $typo-primary: #ffffff;

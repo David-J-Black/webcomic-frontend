@@ -10,8 +10,8 @@ import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import { SettingsMenuComponent } from './components/settings-menu/settings-menu.component';
 import {RouterModule} from "@angular/router";
 import {
-  WebcomicInfiniteScrollComponent
-} from "./pages/webcomic-infinite-scroll/webcomic-infinite-scroll.component";
+  ComicReaderPage
+} from "./pages/page-comic-reader/page-of-comics.component";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComicPageComponent } from './components/comic-page/comic-page.component';
 import {MatIconModule} from "@angular/material/icon";
@@ -29,7 +29,7 @@ import {FormsModule} from "@angular/forms";
     SinglePageViewer,
     SettingsMenuComponent,
     SinglePageViewer,
-    WebcomicInfiniteScrollComponent,
+    ComicReaderPage,
     ComicPageComponent,
     PageAboutComponent,
     PageExtrasComponent,

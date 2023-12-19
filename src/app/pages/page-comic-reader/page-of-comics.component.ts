@@ -1,6 +1,6 @@
 import {
   Component,
-  ElementRef,
+  ElementRef, EventEmitter,
   OnInit, Output,
   QueryList,
   ViewChild,
@@ -9,8 +9,8 @@ import {
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {ChapterService} from "../../service/chapter.service";
 import {ComicChapter} from "../../objects/ComicChapter";
-import {ComicPageSimple} from "../../objects/ComicPage";
-import {Observable} from "rxjs";
+import {ComicPageExtended, ComicPageSimple} from "../../objects/ComicPage";
+import {BehaviorSubject, Observable} from "rxjs";
 import {LocalStorageService} from "../../service/localStorage.service";
 
 /**
@@ -25,17 +25,16 @@ interface LoadState {
 }
 
 @Component({
-  selector: 'app-infinite-scroll',
-  templateUrl: './webcomic-infinite-scroll.component.html',
-  styleUrls: ['./webcomic-infinite-scroll.scss']
+  selector: 'web-page-comic-reader',
+  templateUrl: './page-of-comics.component.html',
+  styleUrls: ['./page-of-comics.component.scss']
 })
-export class WebcomicInfiniteScrollComponent implements OnInit {
+export class ComicReaderPage implements OnInit {
 
-  @ViewChild('currentPage', {static: false})
-  currentPage: ElementRef | undefined;
+  currentComicPage: ComicPageExtended | undefined;
+
   @ViewChildren('comicPage', { read: ElementRef})
   comicPageElements: QueryList<ElementRef> = new QueryList<ElementRef>();
-  @Output() currentPageOutput: Observable<ComicPageSimple> = new Observable<ComicPageSimple>();
 
   stateInformation: LoadState = {
     loading: false,
@@ -45,8 +44,8 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
     scrollYPosPreLoad: undefined
   }
 
-  firstChapterNumber: number = -1;
-  firstPageNumber: number = -1;
+  chapterNumber: number = -1;
+  pageNumber: number = -1;
   pages: ComicPageSimple[] = [];
 
   // When pages are loaded, we want to put them in this array
@@ -61,18 +60,13 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
-    private _pageService: ChapterService,
+    private _chapterService: ChapterService,
     private _localStorageService: LocalStorageService
   ) {}
 
   ngOnInit(): void {
-    if ('scrollRestoration' in history) {
-      history.scrollRestoration = 'manual';
-    }
-
     // I hate nesting subscribe statements like this, please forgive me
     this.parseRoute()
-    window.addEventListener('scroll', this.onScroll.bind(this));
   }
 
   /**
@@ -104,7 +98,6 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
   saveLoadState(): void {
     this.stateInformation.loading = true;
     this.stateInformation.documentHeightPreLoad = this.getDocumentHeight();
-    this.stateInformation.pageToScrollTo = this.getCurrentComicPage();
     this.stateInformation.scrollingUp = this.lastRecordedYPosition < window.scrollY;
     this.stateInformation.scrollYPosPreLoad = window.scrollY;
     this.saveCurrentScrollPosition();
@@ -117,20 +110,37 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
   parseRoute(): void  {
 
     try {
-      const paramMap: ParamMap = this._route.snapshot.paramMap;
+      this._route.params.subscribe({
+        next: ({chapter, page}) => {
+          console.debug('params', chapter, page);
+          this.chapterNumber = Number.parseInt(chapter);
+          this.pageNumber = Number.parseInt(page);
 
-      this.firstChapterNumber = Number.parseInt(paramMap.get('chapter') || '-1');
-      this.firstPageNumber = Number.parseInt(paramMap.get('page') || '-1');
-
-      // this.range = this.parseURLRange(params.get('pageRange'));
-      this._pageService.getChapterInfo(this.firstChapterNumber).subscribe((result: ComicChapter) => {
-        this.chapter = result;
-        console.log('chapter info', this.chapter)
-        this.loadPages();
+          // We need to get this chapter info
+          this._chapterService.getChapterInfo(this.chapterNumber).subscribe({
+            next:(result: ComicChapter) => {
+                this.chapter = result;
+                console.log('chapter info', this.chapter)
+                this.loadPages();
+            }, error: (error: Error) => {
+              console.error('Problem getting chapter info!', error);
+              throw error;
+            }
+          });
+          this._chapterService.getPageInfo(this.chapterNumber, this.pageNumber).subscribe({
+            next: (page) => {
+              this.currentComicPage = page;
+            }, error: (error: Error) => {
+              console.error('Problem getting page info from backend!', this.chapterNumber, this.pageNumber, error);
+              throw error;
+            }
+          });
+        }
       });
 
     } catch (e) {
       console.error('Error trying to parse route!', e);
+      throw e;
     }
   }
 
@@ -140,56 +150,30 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
   loadPages(): void {
 
     // Do we know which page and chapter we want?
-    if (this.firstChapterNumber != null
-        && this.firstPageNumber != null) {
+    if (this.chapterNumber != null
+        && this.pageNumber != null) {
 
       // Is this page and chapter within range?
       if (this.chapter != null
-        && this.firstPageNumber <= this.chapter.lastPage
-        && this.firstPageNumber >= this.chapter.firstPage) {
+        && this.pageNumber <= this.chapter.lastPage
+        && this.pageNumber >= this.chapter.firstPage) {
 
-        let pagesLeftToLoad = this.pagesPerLoad;
+        let desiredEndPage = this.pageNumber + this.pagesPerLoad - 1;
+        if (desiredEndPage > this.chapter.lastPage ) {
+          desiredEndPage = this.chapter.lastPage;
+        }
+
 
         // Get the "current page"
-        const currentComicPages = this._pageService.getPages(this.firstChapterNumber, this.firstPageNumber, this.firstPageNumber);
-        const currentComicPage = currentComicPages[0];
-        this.pages.push(currentComicPage);
-        pagesLeftToLoad -= this.pages.length;
-        console.debug('number of pages we\'re sticking on the end', pagesLeftToLoad);
-
-        const afterPages: ComicPageSimple[] = this._pageService.getPageAfter(currentComicPage, this.chapter, pagesLeftToLoad);
-        this.pages = this.pages.concat(afterPages);
+        this._chapterService.getPages(this.chapterNumber, this.pageNumber, desiredEndPage).subscribe({
+          next: (pages: ComicPageSimple[]) => {
+            this.pages = pages;
+          }, error: (error: Error) => {
+            console.error('Problem getting pages', this.chapterNumber, this.pageNumber, this.pageNumber)
+          }
+        });
       }
     }
-  }
-
-  onScrollDown() {
-    console.log('onScrollDown')
-    // If all the pages aren't loaded or we have the scroll lock on, let us not try to get more pages
-    const pagesAreLoaded = this.areAllPagesLoaded();
-    if (!pagesAreLoaded) {
-      console.debug(`Scroll Down Event activated, but not all pages are loaded`)
-      return;
-    }
-
-    const lastPage: ComicPageSimple = this.pages[this.pages.length - 1];
-
-    // We're going to get new pages
-    // First we need to make sure the chapter matches our chapterNumber
-    let newPages: ComicPageSimple[]
-    if (lastPage.chapterNumber === this.chapter?.number) {
-      newPages = this._pageService.getPageAfter(lastPage, this.chapter, this.pagesPerLoad);
-    } else if (lastPage.chapterNumber === this.chapter?.nextChapter.number) {
-      newPages = this._pageService.getPageAfter(lastPage, this.chapter.nextChapter, this.pagesPerLoad);
-    } else {
-      newPages = [];
-    }
-
-    // Save all the information about our position before we add more pages
-    this.saveLoadState();
-    console.debug('Adding new pages')
-    this.pages = this.pages.concat(newPages);
-    this.stateInformation.loading = false;
   }
 
   onScrollUp() {
@@ -209,9 +193,9 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
   //   let newPages: ComicPageSimple[];
   //
   //   if (this.pages[0].chapterNumber === this.chapter?.number) {
-  //     newPages = this._pageService.getPageBefore(this.pages[0], this.chapter, this.pagesPerLoad);
+  //     newPages = this._chapterService.getPageBefore(this.pages[0], this.chapter, this.pagesPerLoad);
   //   } else if (this.pages[0].chapterNumber === this.chapter?.previousChapter.number) {
-  //     newPages = this._pageService.getPageBefore(this.pages[0], this.chapter?.previousChapter, this.pagesPerLoad);
+  //     newPages = this._chapterService.getPageBefore(this.pages[0], this.chapter?.previousChapter, this.pagesPerLoad);
   //   } else {
   //     newPages = [];
   //   }
@@ -254,15 +238,14 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
           IF we are within this element's boundary, then let us consider this the page we are on, and get the ComicPage info
          */
         this._router
-          .navigateByUrl(`/infinite-scroll/${page.chapterNumber}/${page.pageNumber}`);
-        this.currentPage = this.getComicHTMLElement(page);
+          .navigate([page.chapterNumber, page.pageNumber]);
 
         // If we are still loading pages, it's a little buggy if we change the page#
         if (this.areAllPagesLoaded()) {
-          this.firstPageNumber = page.pageNumber;
-          if (page.chapterNumber !== this.firstChapterNumber) {
-            this.firstChapterNumber = page.chapterNumber;
-            this._pageService.getChapterInfo(this.firstChapterNumber).subscribe( (result: ComicChapter) => {
+          this.pageNumber = page.pageNumber;
+          if (page.chapterNumber !== this.chapterNumber) {
+            this.chapterNumber = page.chapterNumber;
+            this._chapterService.getChapterInfo(this.chapterNumber).subscribe( (result: ComicChapter) => {
               this.chapter = result;
             });
           }
@@ -342,20 +325,6 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
    * me 🥺
    */
   loadedAllPages() {
-
-    // Determine which page as of right now is  the current page
-    const currentComicPage = this.getCurrentComicPage();
-    this.currentPage = this.getComicHTMLElement(currentComicPage);
-    const comicHtmlElement: ElementRef | undefined = this.getComicHTMLElement(this.stateInformation.pageToScrollTo);
-
-    if (comicHtmlElement === null) {
-      // Damn, this thing isn't on the HTML dom yet 😔
-      return;
-    }
-
-    if (comicHtmlElement) {
-      comicHtmlElement.nativeElement.scrollIntoView();
-    }
     this.stateInformation.loading = false;
   }
 
@@ -392,8 +361,8 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
     // For each page we have currently loaded
     // Which one of them is the page we're currently looking at
     for (const page of this.pages) {
-      if (page.pageNumber == this.firstPageNumber
-        && page.chapterNumber=== this.firstChapterNumber) {
+      if (page.pageNumber == this.pageNumber
+        && page.chapterNumber=== this.chapterNumber) {
         return page;
       }
     }
@@ -451,4 +420,7 @@ export class WebcomicInfiniteScrollComponent implements OnInit {
     return page.chapterNumber + "_" + page.pageNumber;
   }
 
+  onPageSelected(event: number) {
+    this.pagesPerLoad = event;
+  }
 }
