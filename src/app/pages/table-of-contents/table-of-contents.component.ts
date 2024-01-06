@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ChapterService} from "../../service/chapter.service";
+import {PageService} from "../../service/page.service";
 import {NavigationService} from "../../service/navigation.service";
 import {TableOfContentsChapter} from "../../objects/TableOfContentsChapter";
 import {TableOfContentsPage} from "../../objects/TableOfContentsPage";
@@ -14,7 +14,7 @@ export class TableOfContentsComponent implements OnInit {
 
   tableOfContents: TableOfContentsChapter[] = [];
   constructor(
-      private _pageService: ChapterService,
+      private _pageService: PageService,
       private _navService: NavigationService
   ) {}
   ngOnInit() {

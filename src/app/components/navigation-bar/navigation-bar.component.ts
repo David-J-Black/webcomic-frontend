@@ -21,6 +21,7 @@ export class NavigationBarComponent implements OnInit, OnChanges {
   offset: any;
   haveFirstPage: boolean = false;
   haveLastPage: boolean = false;
+  private loading: boolean = true;
 
   constructor(
     private _localStorageService: LocalStorageService,
@@ -38,37 +39,61 @@ export class NavigationBarComponent implements OnInit, OnChanges {
 
     const comicPages = changes['comicPages'];
     const chapter = changes['chapter'];
-    if (comicPages || chapter) {
-      if (comicPages.currentValue.size > 0) {
-        let haveFirstPage = false;
-        let haveLastPage = false;
-        for (let page of this.comicPages) {
-          if (page.pageNumber == this.chapter?.firstPage) {
-            haveFirstPage = true;
-          }
-          if (page.pageNumber == this.chapter?.lastPage) {
-            haveLastPage = true;
-          }
-        }
-        this.haveFirstPage = haveFirstPage;
-        this.haveLastPage = haveLastPage;
-      }
+    if (comicPages && chapter) {
+      this._lookForSpecialPageCharacteristics()
     }
+  }
+
+  _lookForSpecialPageCharacteristics() {
+    if (this.comicPages.length > 0) {
+      let haveFirstPage = false;
+      let haveLastPage = false;
+      for (let page of this.comicPages) {
+        if (page.pageNumber == this.chapter?.firstPage && this.chapter.previousChapter == undefined) {
+          haveFirstPage = true;
+        }
+        if (page.pageNumber == this.chapter?.lastPage && this.chapter.nextChapter == undefined) {
+          haveLastPage = true;
+        }
+      }
+      this.haveFirstPage = haveFirstPage;
+      this.haveLastPage = haveLastPage;
+    } else if (this.comicPages.length == 0) {
+      console.warn('comicPages elmeent is empty!');
+      this.loading = true;
+    } else {
+      console.debug('got Comic Pages!', this.comicPages);
+      this.loading = true;
+    }
+
   }
 
   emitSelection() {
     console.debug(this.selectedNumber);
     this._localStorageService.setComicsPerPage(this.selectedNumber);
+    window.location.reload();
+    // this._lookForSpecialPageCharacteristics();
   }
 
+  /**
+   * Navigate user to first page
+   */
   goToFirst(): void {
     this._navigationalService.goToFirstPage();
   }
 
+  /**
+   * Navigate use to set of pages preceeding this one.
+   */
   goToPrevious(): void {
     console.debug('Going to previous page set', this.comicPages)
-    if (this.comicPages.length > 0 && this.chapter) {
-      this._navigationalService.goToPreviousPage(this.comicPages[0], this.chapter, this.comicPages.length).then((response) => {
+
+    if (!this.chapter) {
+      throw new Error('No comic chapter in navigation bar!');
+    }
+
+    if (this.comicPages.length > 0) {
+      this._navigationalService.goToPreviousPageSet(this.comicPages[0], this.chapter, this.selectedNumber).then((response) => {
         console.debug('goToPreviousPageResponse', response);
       }, (error) => {
         throw error;
@@ -81,19 +106,23 @@ export class NavigationBarComponent implements OnInit, OnChanges {
 
   goToNext(): void {
     console.debug('Going to next page set', this.comicPages)
-    if (this.comicPages.length > 0 && this.chapter) {
-      this._navigationalService.goToNextPage(this.comicPages[this.comicPages.length - 1], this.chapter, this.comicPages.length).then((response) => {
-        console.debug('goToNextPage response', response);
-      }, (error) => {
-        throw error;
-      });
-    } else {
-      console.error('Problem trying to go to next page', this.comicPages);
-      throw Error("No current page!");
+
+    if (!this.chapter) {
+      throw Error("No current chapter in navigation bar 😰!");
     }
+
+    if (this.comicPages.length <= 0) {
+      throw Error("No current page!: " + JSON.stringify(this.comicPages));
+    }
+
+    this._navigationalService.goToNextPage(this.comicPages[0], this.chapter, this.selectedNumber)
+    .then(undefined, (error) => {
+      console.error('Problem going to next page!', error);
+      throw error;
+    });
   }
 
   goToLast(): void {
-    this._navigationalService.goToLastPage();
+    this._navigationalService.goToLastPage(this.comicPages.length - 1);
   }
 }

@@ -1,28 +1,15 @@
 import {
   Component,
-  ElementRef, EventEmitter,
-  OnInit, Output,
+  ElementRef,
+  OnInit,
   QueryList,
-  ViewChild,
   ViewChildren
 } from '@angular/core';
-import {ActivatedRoute, ParamMap, Router} from "@angular/router";
-import {ChapterService} from "../../service/chapter.service";
+import {ActivatedRoute, Router} from "@angular/router";
+import {PageService} from "../../service/page.service";
 import {ComicChapter} from "../../objects/ComicChapter";
 import {ComicPageExtended, ComicPageSimple} from "../../objects/ComicPage";
-import {BehaviorSubject, Observable} from "rxjs";
 import {LocalStorageService} from "../../service/localStorage.service";
-
-/**
- * What exactly should we be expecting when the images finish loading?
- */
-interface LoadState {
-  loading: boolean,
-  scrollingUp: boolean,
-  pageToScrollTo: ComicPageSimple | undefined,
-  documentHeightPreLoad: number,
-  scrollYPosPreLoad: number | undefined
-}
 
 @Component({
   selector: 'web-page-comic-reader',
@@ -31,19 +18,9 @@ interface LoadState {
 })
 export class ComicReaderPage implements OnInit {
 
-  currentComicPage: ComicPageExtended | undefined;
-
   @ViewChildren('comicPage', { read: ElementRef})
   comicPageElements: QueryList<ElementRef> = new QueryList<ElementRef>();
-
-  stateInformation: LoadState = {
-    loading: false,
-    scrollingUp: false,
-    pageToScrollTo: undefined ,
-    documentHeightPreLoad: window.document.body.offsetHeight,
-    scrollYPosPreLoad: undefined
-  }
-
+  currentComicPage: ComicPageExtended | undefined;
   chapterNumber: number = -1;
   pageNumber: number = -1;
   pages: ComicPageSimple[] = [];
@@ -53,14 +30,11 @@ export class ComicReaderPage implements OnInit {
   pagesPerLoad: number = this._localStorageService.getComicsPerPage();
   chapter: ComicChapter | undefined;
 
-  private lastRecordedYPosition: number = 0;
-
-
-  // I like to label all mynpm inst private variables with the _ prefix
+  // Look at all these precious singletons
   constructor(
     private _route: ActivatedRoute,
     private _router: Router,
-    private _chapterService: ChapterService,
+    private pageService: PageService,
     private _localStorageService: LocalStorageService
   ) {}
 
@@ -93,17 +67,6 @@ export class ComicReaderPage implements OnInit {
   }
 
   /**
-   * Right before we make changes to the pages array, we should save our current browsing state
-   */
-  saveLoadState(): void {
-    this.stateInformation.loading = true;
-    this.stateInformation.documentHeightPreLoad = this.getDocumentHeight();
-    this.stateInformation.scrollingUp = this.lastRecordedYPosition < window.scrollY;
-    this.stateInformation.scrollYPosPreLoad = window.scrollY;
-    this.saveCurrentScrollPosition();
-  }
-
-  /**
    * Get the page and chapter information based on the route
    * -- This should only done upon initialization
    */
@@ -117,7 +80,7 @@ export class ComicReaderPage implements OnInit {
           this.pageNumber = Number.parseInt(page);
 
           // We need to get this chapter info
-          this._chapterService.getChapterInfo(this.chapterNumber).subscribe({
+          this.pageService.getChapterInfo(this.chapterNumber).subscribe({
             next:(result: ComicChapter) => {
                 this.chapter = result;
                 console.log('chapter info', this.chapter)
@@ -127,7 +90,7 @@ export class ComicReaderPage implements OnInit {
               throw error;
             }
           });
-          this._chapterService.getPageInfo(this.chapterNumber, this.pageNumber).subscribe({
+          this.pageService.getPageInfo(this.chapterNumber, this.pageNumber).subscribe({
             next: (page) => {
               this.currentComicPage = page;
             }, error: (error: Error) => {
@@ -165,11 +128,17 @@ export class ComicReaderPage implements OnInit {
 
 
         // Get the "current page"
-        this._chapterService.getPages(this.chapterNumber, this.pageNumber, desiredEndPage).subscribe({
+        this.pageService.getPages(this.chapterNumber, this.pageNumber, desiredEndPage).subscribe({
           next: (pages: ComicPageSimple[]) => {
+            console.debug('Got comic pages...', pages)
+
+            if (pages.length <= 0) {
+              console.warn('Got 0 pages from the chapterService!');
+            }
+
             this.pages = pages;
           }, error: (error: Error) => {
-            console.error('Problem getting pages', this.chapterNumber, this.pageNumber, this.pageNumber)
+            console.error('Problem getting pages', this.chapterNumber, this.pageNumber, error)
           }
         });
       }
@@ -184,84 +153,6 @@ export class ComicReaderPage implements OnInit {
     if (!pagesAreLoaded) {
       return;
     }
-  }
-
-  // ==== Was more essential with infinite scroll, will I ever need this again?
-  // private loadPagesOnTop() {
-  //   // Get new pages
-  //   // Let's check for the edgecase where the page we want to get is the previous chapter
-  //   let newPages: ComicPageSimple[];
-  //
-  //   if (this.pages[0].chapterNumber === this.chapter?.number) {
-  //     newPages = this._chapterService.getPageBefore(this.pages[0], this.chapter, this.pagesPerLoad);
-  //   } else if (this.pages[0].chapterNumber === this.chapter?.previousChapter.number) {
-  //     newPages = this._chapterService.getPageBefore(this.pages[0], this.chapter?.previousChapter, this.pagesPerLoad);
-  //   } else {
-  //     newPages = [];
-  //   }
-  //
-  //   if (newPages.length !== 0) {
-  //     // Add new pages to our pages
-  //
-  //     this.saveLoadState();
-  //     this.pages = newPages.concat(this.pages);
-  //
-  //   }
-  // }
-
-  saveCurrentScrollPosition() {
-    this.lastRecordedYPosition = window.scrollY;
-  }
-
-  onScroll() {
-
-    // We want to say the page in the center of the window is the current page
-    const scrollPosition: number = window.scrollY;
-    this.saveCurrentScrollPosition();
-
-    // Are all of our pages loaded?
-    // We cannot accurately determine which page the user is looking at if pages aren't loaded
-    if (!this.areAllPagesLoaded()) {
-      return;
-    }
-
-    this.loadPageHeightsAndPositions();
-    this.pages.forEach((page) => {
-
-      if (page != null &&
-          page.height !== undefined &&
-          page.yPosition !== undefined &&
-          scrollPosition >= page.yPosition &&
-          scrollPosition <= page.yPosition + page.height) {
-
-        /*
-          IF we are within this element's boundary, then let us consider this the page we are on, and get the ComicPage info
-         */
-        this._router
-          .navigate([page.chapterNumber, page.pageNumber]);
-
-        // If we are still loading pages, it's a little buggy if we change the page#
-        if (this.areAllPagesLoaded()) {
-          this.pageNumber = page.pageNumber;
-          if (page.chapterNumber !== this.chapterNumber) {
-            this.chapterNumber = page.chapterNumber;
-            this._chapterService.getChapterInfo(this.chapterNumber).subscribe( (result: ComicChapter) => {
-              this.chapter = result;
-            });
-          }
-        }
-      }
-    });
-  }
-
-  /**
-   * Get the current height for the document.
-   */
-  getDocumentHeight(): number {
-    return Math.max(
-      document.documentElement.scrollHeight,
-      document.body.scrollHeight
-    );
   }
 
   /**
@@ -325,7 +216,7 @@ export class ComicReaderPage implements OnInit {
    * me 🥺
    */
   loadedAllPages() {
-    this.stateInformation.loading = false;
+    // this.stateInformation.loading = false;
   }
 
   /**

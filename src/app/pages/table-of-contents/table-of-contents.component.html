@@ -13,7 +13,7 @@
       </h1>
     </div>
     <span class="page-count">
-      {{chapter.pages?.length}} pages
+      {{chapter?.pages?.length}} pages
     </span>
     <div class="pages">
       <div class="page clickable" *ngFor="let page of chapter.pages" (click)="goToPage(chapter, page)">

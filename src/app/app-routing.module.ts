@@ -1,11 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import {SinglePageViewer} from "./pages/single-page-viewer/single-page-viewer.component";
 import {ComicReaderPage} from "./pages/page-comic-reader/page-of-comics.component";
 import {PageAboutComponent} from "./pages/page-about/page-about.component";
 import {TableOfContentsComponent} from "./pages/table-of-contents/table-of-contents.component";
 import {PageExtrasComponent} from "./pages/page-extras/page-extras.component";
-import {environment} from "../environments/environment";
+import {PageLostComponent} from "./pages/page-lost/page-lost.component";
 
 const routes: Routes = [
 
@@ -15,26 +14,34 @@ const routes: Routes = [
     component: ComicReaderPage,
   },
   {
-    path: environment.routes.about,
+    path: 'about',
+    title: 'Finding Darwin: About',
     component: PageAboutComponent
   },
   {
-    path: environment.routes.extras,
-    component: PageExtrasComponent
+    path: 'extras',
+    title: 'Finding Darwin: Extras',
+    component: PageExtrasComponent,
   },
   {
-    path: environment.routes.tableOfContents,
+    path: 'table-o-contents',
+    title: 'Finding Darwin: Table of Contents',
     component: TableOfContentsComponent
   },
-  // {
-  //   path: '',
-  //   redirectTo: 'infinite-scroll/1/1',
-  //   pathMatch: "full"
-  // },
-  // {// If the path doesn't match anything else redirect to chapter 1
-  //   path: '**',
-  //   redirectTo: 'infinite-scroll/1/1'
-  // }
+  {
+    path: 'lost',
+    title: 'Finding Darwin: You are Lost!',
+    component: PageLostComponent
+  },
+  {
+    path: '',
+    redirectTo: '/1/1',
+    pathMatch: "full"
+  },
+  {// If the path doesn't match anything else redirect to chapter 1
+    path: '**',
+    redirectTo: '/1/1'
+  }
 
 ];
 

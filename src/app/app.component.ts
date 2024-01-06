@@ -72,7 +72,7 @@ export class AppComponent implements OnInit {
    * Navigates window to Lage page in comic
    */
   goToLastPage() {
-    this._navigationService.goToLastPage();
+    this._navigationService.goToLastPage(0);
   }
 
   goToAboutPage() {

@@ -2,27 +2,55 @@
 
 :host {
   display: flex;
+  flex-flow: column nowrap;
+  gap: 10px;
+}
+
+.site-navigation-row {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 10px;
+}
+
+.page-navigation-row {
+  display: flex;
   flex-flow: row nowrap;
   justify-content: flex-end;
-  gap: 25px;
+  align-items: center;
+  gap: 20px;
+
+  span {
+    margin: 0;
+  }
 
   @media screen and (max-width: $wid-phone-large) {
-    gap: 5px;
-
     .button {
       span {
         display: none;
       }
     }
   }
+
+  @media screen and (max-width: $wid-phone-small) {
+    gap: 0;
+  }
 }
 
 #page-selector {
+  display: flex;
   flex-flow: column nowrap;
+  align-items: center;
+  gap: 10px;
 
   span {
     font-weight: bold;
     white-space: nowrap;
+
+    @media screen and (max-width: $wid-phone-teeny) {
+      display: inline-block;
+      white-space: normal;
+      width: 50px;
+    }
   }
 
   select {
@@ -30,23 +58,18 @@
     padding: 5px;
     font-weight: bolder;
     border-radius: $rad-small;
+    width: 70px;
   }
 }
 
 .row-item {
-  // Curved buttons Idea
-  //$rotate-degree: 15deg;
-  //$increase-scalar: 5deg;
-  //
-  //&.first{
-  //  //rotate: $rotate-degree;
-  //}
-  //
-  //&.previous {
-  //  rotate: calc(2 *$rotate-degree);
-  //}
   cursor: pointer;
   overflow: visible;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
 
   :hover {
     //color: $clr-hover;
@@ -63,6 +86,20 @@
     height: fit-content;
     margin: 0;
     overflow: visible;
+
+    @media screen and (max-width: $wid-phone-large) {
+      font-size: 30pt;
+    }
+
   }
 }
 
+button {
+  background-color: rgba(0,0,0,0);
+  border: none;
+  color: white;
+
+  &:disabled {
+    color: rgba(0,0,0, 0.5);
+  }
+}

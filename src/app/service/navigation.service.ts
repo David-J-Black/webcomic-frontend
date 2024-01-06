@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import {Router} from "@angular/router";
-import {ChapterService} from "./chapter.service";
-import {ComicPageExtended, ComicPageSimple} from "../objects/ComicPage";
-import {environment} from "../../environments/environment";
+import {PageService} from "./page.service";
+import {ComicPageSimple} from "../objects/ComicPage";
 import {ComicChapter} from "../objects/ComicChapter";
 
 @Injectable({
@@ -12,7 +11,7 @@ export class NavigationService {
 
   constructor(
       private _router: Router,
-      private _chapterService: ChapterService
+      private _chapterService: PageService
   ) { }
 
   goToAboutPage() {
@@ -46,11 +45,15 @@ export class NavigationService {
     });
   }
 
+  /**
+   * @Deprecated
+   */
   async goToFirstPageSingle(): Promise<void> {
     this._chapterService.getFirstPage().subscribe((page) => {
       this._router.navigate(['/page', page.chapterNumber, page.pageNumber]);
     });
   }
+
 
   async goToPage(chNumber: number, pgNumber: number): Promise<boolean> {
     console.debug('Going to page',chNumber,pgNumber);
@@ -66,23 +69,46 @@ export class NavigationService {
   /**
    * Before we can go to a previous page, we need to confirm it exists.
    */
-  async goToPreviousPage(currentPage: ComicPageSimple, chapter: ComicChapter, offset: number | undefined): Promise<boolean> {
-    const finalOffset = offset ? offset : 1;
+  async goToPreviousPageSet(currentPage: ComicPageSimple, chapter: ComicChapter, requestSize: number): Promise<boolean> {
+    const finalOffset = requestSize <= 0 ? 1 : requestSize;
+
+    if (requestSize <= 0) {
+      console.error('Cannot have a negative offset', requestSize);
+      throw Error('fuck');
+    }
+
     console.debug("going to page before ", currentPage, 'offset', finalOffset);
     return new Promise((resolve, reject) => {
       let desiredPageNumber = currentPage.pageNumber - finalOffset;
 
-      // Is the previous page within this chapter?
-      if (
-        chapter.firstPage <= desiredPageNumber
-        && chapter.lastPage >= desiredPageNumber
+      // Is the first page of the previous set before the start of current chapter?
+      if (chapter.firstPage <= desiredPageNumber
       ) {
-        console.debug('going to page:',currentPage.chapterNumber, desiredPageNumber);
+        console.debug('going to page[',desiredPageNumber,'] set starting with Chapter:', currentPage.chapterNumber,
+          'page', desiredPageNumber);
         this.goToPage(currentPage.chapterNumber, desiredPageNumber);
+
+      // Is this past the first page? Conditional
+      } else if (desiredPageNumber < chapter.firstPage) {
+        if (chapter.previousChapter == null) {
+          console.debug('This is the first page in the comic... cannot navigate backwards!');
+          reject('First Page of entire comic');
+        }
+
+        console.debug('The desired page',desiredPageNumber,
+          'is before the first page of the current chapter', chapter);
+        desiredPageNumber = chapter.previousChapter.lastPage + desiredPageNumber;
+
+        if (desiredPageNumber + requestSize - 1 == chapter.previousChapter.lastPage) {
+          this.goToPage(chapter.previousChapter.number, desiredPageNumber);
+          return;
+        }
+
+        console.debug('Giving Previous chapter last page set ch:', chapter.number, 'pg', chapter.firstPage);
+        this.goToPage(chapter.number, chapter.firstPage);
 
       // Is there a previous chapter?
       } else if (chapter.previousChapter) {
-
         desiredPageNumber = chapter.previousChapter.lastPage - finalOffset;
         if (!chapter.previousChapter.lastPage) {
           reject('Could not find A last page for the previous chapter!');
@@ -102,31 +128,49 @@ export class NavigationService {
         }
 
       } else {
-        reject('This is the first page!')
+        console.warn('This is the first page!')
+        reject(Error('This is the first page, cannot go to previous page!'))
       }
     })
   }
 
-  async goToLastPage(): Promise<void> {
-    this._chapterService.getLastPage().subscribe((page) => {
-      this._router.navigate(['/infinite-scroll', page.chapterNumber, page.pageNumber]);
-    });
-  }
+  async goToLastPage(offset: number): Promise<void> {
+    offset = offset ? offset : 0;
 
-  async goToLastPageSingle(): Promise<void> {
-    this._chapterService.getLastPage().subscribe((page: ComicPageExtended) => {
-      this._router.navigate(['/page', page.chapterNumber, page.pageNumber]);
+    console.debug('requesting Last Page...');
+    this._chapterService.getLastPage().subscribe((page) => {
+      console.debug('got Last Page!', page);
+      const finalPageNumber = page.pageNumber - offset;
+      this._router.navigate([page.chapterNumber, finalPageNumber]);
     });
   }
 
   /**
-   * Before we can go to a previous page, we need to confirm it exists.
+   * Go to the next page of a comic.
+   *
+   * @param {ComicPageSimple} currentPage - The current page of the comic.
+   * @param {ComicChapter} chapter - The current chapter of the comic.
+   * @param {number | undefined} offset - The offset to navigate to the next page. Default is 1.
+   *
+   * @return {Promise<boolean>} - Promise that resolves to true if the navigation was successful, otherwise false.
    */
-  async goToNextPage(currentPage: ComicPageSimple, chapter: ComicChapter, offset: number | undefined): Promise<boolean> {
-    const finalOffset = offset ? offset : 1;
-    console.debug("going to page after ", currentPage, 'offset', finalOffset);
+  async goToNextPage(currentPage: ComicPageSimple,
+                     chapter: ComicChapter,
+                     offset: number | undefined): Promise<boolean> {
+    console.debug('going to next page: currenPage',currentPage, )
+    offset = offset ? offset : 1;
+    console.debug("going to page after ", currentPage, 'offset', offset);
     return new Promise((resolve, reject) => {
-      let desiredPageNumber = currentPage.pageNumber + finalOffset;
+      /* What page do we predict we want?
+        We'll, i predict we will want to go to the current chapter:
+        UNLESS! This chapter ends within the next amount of pages,
+        an [offset] number of pages.
+       */
+      if (!offset) {
+        throw Error('somehow got an undefined offset?');
+      }
+
+      let desiredPageNumber = currentPage.pageNumber + offset;
 
       // Is the next page within this chapter?
       if (
@@ -138,8 +182,8 @@ export class NavigationService {
 
         // Is there a next chapter?
       } else if (chapter.nextChapter) {
+        console.debug('Detected that we should go to next chapter')
 
-        desiredPageNumber = chapter.nextChapter.firstPage
         if (!chapter.nextChapter.firstPage) {
           reject('Could not find A first page for the previous chapter!');
         }

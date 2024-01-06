@@ -3,8 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { SinglePageViewer } from './pages/single-page-viewer/single-page-viewer.component';
-import {ChapterService} from "./service/chapter.service";
+import {PageService} from "./service/page.service";
 import {CommonModule, NgOptimizedImage} from "@angular/common";
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import { SettingsMenuComponent } from './components/settings-menu/settings-menu.component';
@@ -22,13 +21,12 @@ import {DefaultApiInterceptor} from "./service/interrupter";
 import { TableOfContentsComponent } from './pages/table-of-contents/table-of-contents.component';
 import { NavigationBarComponent } from './components/navigation-bar/navigation-bar.component';
 import {FormsModule} from "@angular/forms";
+import { PageLostComponent } from './pages/page-lost/page-lost.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SinglePageViewer,
     SettingsMenuComponent,
-    SinglePageViewer,
     ComicReaderPage,
     ComicPageComponent,
     PageAboutComponent,
@@ -37,6 +35,7 @@ import {FormsModule} from "@angular/forms";
     TableOfContentsComponent,
     CommentComponent,
     NavigationBarComponent,
+    PageLostComponent,
   ],
     imports: [
         BrowserModule,
@@ -50,7 +49,7 @@ import {FormsModule} from "@angular/forms";
         FormsModule
     ],
   providers: [
-    ChapterService,
+    PageService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: DefaultApiInterceptor,

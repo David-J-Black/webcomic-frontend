@@ -1,6 +1,3 @@
-<div id="loading-overlay" *ngIf="stateInformation.loading">
-  <div class="loader"></div>
-</div>
 <div class="comic-container">
 
   <!--  When the user loads a page not from the beginning, they have to physically enable loading previous pages.-->
@@ -11,7 +8,7 @@
 <!--          Load Previous Pages-->
 <!--        </div>-->
   </div>
-  <cmc-navigation-bar [comicPages]="pages" [chapter]="chapter" (pageSelected)="onPageSelected($event)"/>
+  <cmc-navigation-bar [comicPages]="pages" [chapter]="chapter" (pageSelected)="onPageSelected($event)" *ngIf="pages   "/>
   <div *ngFor="let page of pages"
        class="page-slot">
     <cmc-comic-page [attr.id]="getPageId(page)"

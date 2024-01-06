@@ -11,7 +11,7 @@ import {TableOfContentsChapter} from "../objects/TableOfContentsChapter";
 @Injectable({
   providedIn: 'root'
 })
-export class ChapterService {
+export class PageService {
 
   env = environment;
   private urls = {
