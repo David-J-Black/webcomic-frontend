@@ -2,11 +2,7 @@
 
   <!--  When the user loads a page not from the beginning, they have to physically enable loading previous pages.-->
   <div class="initial-header">
-    <h2> Chapter {{chapterNumber || 'Loading'}}, page {{pageNumber || 'Loading'}}</h2>
-<!--        <div class="comic-button"-->
-<!--             (click)="unlockHeader()">-->
-<!--          Load Previous Pages-->
-<!--        </div>-->
+    <h1> Chapter {{chapterNumber || 'Loading'}}, page {{pageNumber || 'Loading'}}</h1>
   </div>
   <cmc-navigation-bar [comicPages]="pages" [chapter]="chapter" (pageSelected)="onPageSelected($event)" *ngIf="pages   "/>
   <div *ngFor="let page of pages"

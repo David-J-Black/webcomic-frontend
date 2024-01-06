@@ -1,19 +1,41 @@
 <div class="site-navigation-row">
-  <button class="button row-item">
-    <mat-icon>home</mat-icon>
+  <button class="button">
+    <mat-icon>
+      info
+    </mat-icon>
     <h2>
       About
+    </h2>
+  </button>
+
+  <button class="button">
+    <mat-icon>
+      list
+    </mat-icon>
+    <h2>
+      Table of Contents
+    </h2>
+  </button>
+
+  <button class="button">
+    <mat-icon>
+      favorite
+    </mat-icon>
+    <h2>
+      Extras
     </h2>
   </button>
 </div>
 
 <div class="page-navigation-row">
-  <button class="first button row-item" (click)="goToFirst()" [disabled]="haveFirstPage">
-      <mat-icon>fast_rewind</mat-icon>
+  <button class="first button page-nav-row-item" (click)="goToFirst()" [disabled]="haveFirstPage">
+      <mat-icon>
+        fast_rewind
+      </mat-icon>
       <span>First</span>
   </button>
 
-  <button class="previous button row-item" (click)="goToPrevious()" [disabled]="haveFirstPage">
+  <button class="previous button page-nav-row-item" (click)="goToPrevious()" [disabled]="haveFirstPage">
       <mat-icon>arrow_left</mat-icon>
       <span>Previous</span>
   </button>
@@ -27,12 +49,12 @@
       <span>Pages at a Time</span>
   </div>
 
-  <button class="button row-item" (click)="goToNext()" [disabled]="haveLastPage">
+  <button class="button page-nav-row-item" (click)="goToNext()" [disabled]="haveLastPage">
       <mat-icon>arrow_right</mat-icon>
       <span>Next</span>
   </button>
 
-  <button class="button row-item" [disabled]="haveLastPage" (click)="goToLast()">
+  <button class="button page-nav-row-item" [disabled]="haveLastPage" (click)="goToLast()">
       <mat-icon>fast_forward</mat-icon>
       <span>Last</span>
   </button>

@@ -10,6 +10,23 @@
   display: flex;
   flex-flow: row wrap;
   gap: 10px;
+
+  .button {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 10px;
+    width: fit-content;
+
+    h2 {
+      padding: 0;
+      margin: 0;
+    }
+
+    mat-icon {
+      width: 30px;
+    }
+  }
 }
 
 .page-navigation-row {
@@ -62,7 +79,7 @@
   }
 }
 
-.row-item {
+.page-nav-row-item {
   cursor: pointer;
   overflow: visible;
   display: flex;
@@ -84,7 +101,6 @@
     font-size: 60pt;
     width: fit-content;
     height: fit-content;
-    margin: 0;
     overflow: visible;
 
     @media screen and (max-width: $wid-phone-large) {
