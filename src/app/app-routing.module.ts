@@ -40,7 +40,7 @@ const routes: Routes = [
   },
   {// If the path doesn't match anything else redirect to chapter 1
     path: '**',
-    redirectTo: '/1/1'
+    redirectTo: 'lost'
   }
 
 ];

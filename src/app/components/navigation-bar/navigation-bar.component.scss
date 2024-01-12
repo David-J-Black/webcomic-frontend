@@ -2,35 +2,6 @@
 
 :host {
   display: flex;
-  flex-flow: column nowrap;
-  gap: 10px;
-}
-
-.site-navigation-row {
-  display: flex;
-  flex-flow: row wrap;
-  gap: 10px;
-
-  .button {
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-    gap: 10px;
-    width: fit-content;
-
-    h2 {
-      padding: 0;
-      margin: 0;
-    }
-
-    mat-icon {
-      width: 30px;
-    }
-  }
-}
-
-.page-navigation-row {
-  display: flex;
   flex-flow: row nowrap;
   justify-content: flex-end;
   align-items: center;
@@ -89,7 +60,6 @@
   gap: 0;
 
   :hover {
-    //color: $clr-hover;
     text-shadow: $glow-small;
   }
 

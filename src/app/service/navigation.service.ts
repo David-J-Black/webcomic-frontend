@@ -93,19 +93,21 @@ export class NavigationService {
         if (chapter.previousChapter == null) {
           console.debug('This is the first page in the comic... cannot navigate backwards!');
           reject('First Page of entire comic');
+          throw new Error("Null previous chapter");
         }
 
         console.debug('The desired page',desiredPageNumber,
           'is before the first page of the current chapter', chapter);
+
         desiredPageNumber = chapter.previousChapter.lastPage + desiredPageNumber;
 
         if (desiredPageNumber + requestSize - 1 == chapter.previousChapter.lastPage) {
-          this.goToPage(chapter.previousChapter.number, desiredPageNumber);
+          this.goToPage(chapter.previousChapter.chapterNumber, desiredPageNumber);
           return;
         }
 
-        console.debug('Giving Previous chapter last page set ch:', chapter.number, 'pg', chapter.firstPage);
-        this.goToPage(chapter.number, chapter.firstPage);
+        console.debug('Giving Previous chapter last page set ch:', chapter.chapterNumber, 'pg', chapter.firstPage);
+        this.goToPage(chapter.chapterNumber, chapter.firstPage);
 
       // Is there a previous chapter?
       } else if (chapter.previousChapter) {
@@ -117,12 +119,12 @@ export class NavigationService {
         // If the previous chapter does exist, then go to the beginning of last set, according to our offset
         if (desiredPageNumber >= chapter.previousChapter.firstPage ) {
           resolve(this.goToPage(
-            chapter.previousChapter.number,
+            chapter.previousChapter.chapterNumber,
             desiredPageNumber
           ));
         } else {
           resolve(this.goToPage(
-            chapter.previousChapter.number,
+            chapter.previousChapter.chapterNumber,
             chapter.previousChapter.firstPage
           ));
         }
@@ -190,7 +192,7 @@ export class NavigationService {
 
         // If the next chapter does exist, then go to the beginning
         resolve(this.goToPage(
-          chapter.nextChapter.number,
+          chapter.nextChapter.chapterNumber,
           chapter.nextChapter.firstPage
         ));
 

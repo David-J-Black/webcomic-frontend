@@ -15,12 +15,12 @@ export class PageService {
 
   env = environment;
   private urls = {
-    getPageImage: (chapterNumber: number, pageNumber: number): string => `${environment.apiUrl}/page/${chapterNumber}/${pageNumber}`,
-    getPageInfo: (chapterNumber: number, pageNumber: number): string => `${environment.apiUrl}/pageInfo/${chapterNumber}/${pageNumber}`,
+    getPageImage: (chapterNumber: number, pageNumber: number): string => `${environment.apiUrl}/${chapterNumber}/${pageNumber}/image`,
+    getPageInfo: (chapterNumber: number, pageNumber: number): string => `${environment.apiUrl}/${chapterNumber}/${pageNumber}/info`,
     getFirstPage:`${environment.apiUrl}/pages/first`,
     getLastPage:`${environment.apiUrl}/pages/last`,
-    getChapterInfo: (chapterNumber: number) => `${environment.apiUrl}/chapter/${chapterNumber}`,
-    getAllChapters: `${environment.apiUrl}/chapter/all`
+    getChapterInfo: (chapterNumber: number) => `${environment.apiUrl}/${chapterNumber}/chapter`,
+    getAllChapters: `${environment.apiUrl}/all`
   }
 
   constructor(
@@ -78,7 +78,7 @@ export class PageService {
 
     let numberOfPagesLeft = numberOfPages;
 
-    if (chapter.number !== page.chapterNumber) {
+    if (chapter.chapterNumber !== page.chapterNumber) {
       throw new Error('Chapter given to us does not match the page given to us!');
     }
 

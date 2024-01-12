@@ -1,37 +1,17 @@
 
 <div id="header">
   <img src="/assets/landscapeHeader.png" alt="Finding Darwin">
-
 </div>
 
 <div id="lower-content">
+  <cmc-site-navigation-bar></cmc-site-navigation-bar>
   <div id="gray-out"
-       [ngClass]="{'hidden': !grayOutVisible()}" (click)="hideDrawer()">
+       [ngClass]="{'hidden': !grayOutVisible()}"
+       (click)="hideDrawer()">
   </div>
 
   <div id="main-content">
     <router-outlet></router-outlet>
-  </div>
-
-  <div id="side-bar" [ngClass]="{'hidden': !drawerIsOpen(), 'fixed_right': !wideEnoughForSideMenu}">
-    <div class="drawer-item" (click)="goToFirstPage()">
-      <mat-icon>first_page</mat-icon>
-      <span>
-        Go to Beginning
-      </span>
-    </div>
-    <div class="drawer-item" (click)="goToLastPage()">
-      <mat-icon>last_page</mat-icon>
-      <span>
-        Go to End
-      </span>
-    </div>
-    <div class="drawer-item" (click)="goToAboutPage()">
-      <mat-icon>info</mat-icon>
-      <span>
-        About
-      </span>
-    </div>
   </div>
 
   <div id="footer">

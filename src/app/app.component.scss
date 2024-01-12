@@ -1,45 +1,5 @@
 @import 'src/variables/variables';
 
-:host {;
-  height: 100%;
-}
-
-#logo {
-  width: 300px;
-}
-
-#background {
-  box-sizing: border-box;
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  position: fixed;
-  z-index: -1;
-  height: 100vh;
-  width: 100vw;
-  gap: 0;
-  background: $clr-background;
-  padding: 0;
-  margin: 0;
-
-  img {
-    width: 100vw;
-    padding: 0;
-    margin: 0;
-  }
-
-  #below-header {
-    width: 100vw;
-    height: 100%;
-    box-sizing: border-box;
-    display: flex;
-    min-width: 100vw;
-    background: linear-gradient(to bottom, $clr-background, black);
-    margin: 0;
-    padding: 0;
-  }
-}
-
 :host {
   width: 100%;
   height: fit-content;
@@ -55,6 +15,7 @@
     height: 100%;
     background: linear-gradient(to bottom, $clr-background, black);
     margin: 0;
+    gap: 10px;
 
     #main-content {
       display: flex;
@@ -112,6 +73,42 @@
   }
 }
 
+#logo {
+  width: 300px;
+}
+
+#background {
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  position: fixed;
+  z-index: -1;
+  height: 100vh;
+  width: 100vw;
+  gap: 0;
+  background: $clr-background;
+  padding: 0;
+  margin: 0;
+
+  img {
+    width: 100vw;
+    padding: 0;
+    margin: 0;
+  }
+
+  #below-header {
+    width: 100vw;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    min-width: 100vw;
+    background: linear-gradient(to bottom, $clr-background, black);
+    margin: 0;
+    padding: 0;
+  }
+}
+
 .fixed {
   position: fixed;
 
@@ -129,51 +126,20 @@
   z-index: 4;
 }
 
-#settings-button {
-  $settings-button-width: 5vw;
-
-  position: fixed;
-  display: flex;
-  flex-flow: row-reverse nowrap;
-  top: 10px;
-  right: 10px;
-  padding: 10px;
-  height: $settings-button-width;
-  width: $settings-button-width;
-  align-items: center;
-  z-index: 5;
-  cursor: pointer;
-  fill: white;
-  box-shadow: 2px 2px 2px;
-
-  :hover {
-    path {
-      fill: white;
-      text-shadow: 1px 1px 3px white;
-    }
-  }
-}
-
-#settings-button {
-  display: none;
-
-}
-
 #header {
-  display: block;
+  display: inline-block;
   width: 100%;
-  background-repeat: repeat-x;
-  background-size: auto 200px;
-  background-position-x: center;
+  height: auto;
   background-color: #b5d0e3;
   padding: 0;
   margin: 0;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
   vertical-align: middle;
 
   img {
     width: 100%;
+    height: auto;
     margin: 0;
     padding: 0;
     box-sizing: border-box;

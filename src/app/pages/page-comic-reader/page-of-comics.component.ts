@@ -82,9 +82,13 @@ export class ComicReaderPage implements OnInit {
           // We need to get this chapter info
           this.pageService.getChapterInfo(this.chapterNumber).subscribe({
             next:(result: ComicChapter) => {
+
+              if (result != null) {
                 this.chapter = result;
-                console.log('chapter info', this.chapter)
-                this.loadPages();
+              }
+              console.log('chapter info', this.chapter)
+              this.loadPages();
+
             }, error: (error: Error) => {
               console.error('Problem getting chapter info!', error);
               throw error;
@@ -268,11 +272,11 @@ export class ComicReaderPage implements OnInit {
     // Let's get this page's chapter
     let pageChapter: ComicChapter;
 
-    if (page.chapterNumber === this.chapter?.number) {
+    if (page.chapterNumber === this.chapter?.chapterNumber) {
       pageChapter = this.chapter;
-    } else if (this.chapter?.previousChapter && page.chapterNumber === this.chapter.previousChapter.number) {
+    } else if (this.chapter?.previousChapter && page.chapterNumber === this.chapter.previousChapter.chapterNumber) {
       pageChapter = this.chapter.previousChapter;
-    } else if (this.chapter?.nextChapter && page.chapterNumber === this.chapter?.nextChapter.number) {
+    } else if (this.chapter?.nextChapter && page.chapterNumber === this.chapter?.nextChapter.chapterNumber) {
       pageChapter = this.chapter.nextChapter
     } else {
       // Ok if we don't have a chapter match that's fucked up
@@ -294,11 +298,11 @@ export class ComicReaderPage implements OnInit {
       return undefined;
     }
 
-    if (page.chapterNumber === this.chapter?.number) {
+    if (page.chapterNumber === this.chapter?.chapterNumber) {
       return this.chapter;
-    } else if (this.chapter?.previousChapter && page.chapterNumber === this.chapter?.previousChapter.number) {
+    } else if (this.chapter?.previousChapter && page.chapterNumber === this.chapter?.previousChapter.chapterNumber) {
       return this.chapter.previousChapter;
-    } else if (this.chapter?.nextChapter && page.chapterNumber === this.chapter?.nextChapter.number) {
+    } else if (this.chapter?.nextChapter && page.chapterNumber === this.chapter?.nextChapter.chapterNumber) {
       return this.chapter?.nextChapter
     }
 

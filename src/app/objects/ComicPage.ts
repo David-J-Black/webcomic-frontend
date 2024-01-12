@@ -6,7 +6,7 @@ import {ComicChapter} from "./ComicChapter";
 export type ComicPageSimple = {
   pageNumber: number
   chapterNumber: number
-  url: string
+  url: string | undefined;
 
   // The height of the page relative to the current state of the webpage
   // this adjusts as the user scrolls and pages are added/ subtracted

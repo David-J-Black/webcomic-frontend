@@ -26,15 +26,16 @@ pre {
   .chapter-header {
     display: flex;
     flex-flow: row nowrap;
-    align-items: flex-start;
+    align-items: Center;
     justify-content: flex-start;
     gap: 10px;
 
-    h1 {
+    h1, h3 {
       width: fit-content;
       height: fit-content;
       white-space: break-spaces;
       text-align: left;
+      margin: 0;
     }
     span {
       width: fit-content;
@@ -43,7 +44,6 @@ pre {
   }
 
   .page-count {
-    padding-left: $sp-large-12;
     white-space: nowrap;
     width: fit-content;
   }
@@ -63,9 +63,10 @@ pre {
       justify-content: flex-start;
       gap: $sp-medium-5;
 
-      h3 {
+      h2 {
         width: fit-content;
         white-space: nowrap;
+        margin: 0;
       }
 
       span {

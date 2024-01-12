@@ -4,7 +4,10 @@
   <div class="initial-header">
     <h1> Chapter {{chapterNumber || 'Loading'}}, page {{pageNumber || 'Loading'}}</h1>
   </div>
-  <cmc-navigation-bar [comicPages]="pages" [chapter]="chapter" (pageSelected)="onPageSelected($event)" *ngIf="pages   "/>
+  <cmc-navigation-bar [comicPages]="pages"
+                      [chapter]="chapter"
+                      (pageSelected)="onPageSelected($event)"
+                      *ngIf="pages && chapter"/>
   <div *ngFor="let page of pages"
        class="page-slot">
     <cmc-comic-page [attr.id]="getPageId(page)"
@@ -14,5 +17,8 @@
                     (load)="markPageAsLoaded(page)"
                     (error)="handlePageLoadError(page)"></cmc-comic-page>
   </div>
-  <cmc-navigation-bar/>
+  <cmc-navigation-bar [comicPages]="pages"
+                      [chapter]="chapter"
+                      (pageSelected)="onPageSelected($event)"
+                      *ngIf="pages && chapter"/>
 </div>

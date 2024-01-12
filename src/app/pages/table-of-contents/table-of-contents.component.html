@@ -6,22 +6,19 @@
   <div class="chapter" *ngFor="let chapter of tableOfContents">
     <div class="chapter-header">
       <h1>
-        {{chapter.chapterNumber}}:
+        {{chapter.chapterNumber}}: {{chapter.title}}
       </h1>
-      <h1>
-        {{chapter.title}}
-      </h1>
+      <h3 class="page-count">
+        {{chapter?.pages?.length}} pages
+      </h3>
     </div>
-    <span class="page-count">
-      {{chapter?.pages?.length}} pages
-    </span>
     <div class="pages">
       <div class="page clickable" *ngFor="let page of chapter.pages" (click)="goToPage(chapter, page)">
-        <h3>
+        <h2>
           {{page.pageNumber}}
-        </h3>
+        </h2>
         <span>
-          {{page.releaseDate}}
+          {{page.releaseDate | date: 'mediumDate' }}
         </span>
       </div>
     </div>
